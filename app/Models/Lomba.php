@@ -14,10 +14,21 @@ class Lomba extends Model
         'penyelenggara',
         'kategori',
         'tingkat',
+        'pendaftaran_dibuka',
         'tenggat_pendaftaran',
+        'batas_pengumpulan',
+        'tanggal_final',
         'link_pendaftaran',
+        'deskripsi',
         'jenis_pendampingan',
         'status_publikasi',
         'created_by',
+    ];
+
+    protected $casts = [
+        'pendaftaran_dibuka'  => 'date',
+        'tenggat_pendaftaran' => 'date',
+        'batas_pengumpulan'   => 'date',
+        'tanggal_final'       => 'date',
     ];
 }
