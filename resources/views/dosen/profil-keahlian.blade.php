@@ -4,7 +4,6 @@
 @section('page_title', 'Profil & Keahlian')
 
 @php
-    // Data contoh mengikuti mockup. Data ini belum tersimpan ke database.
     $profileName = 'Dimas Arunika, M.Kom.';
     $studyProgram = 'Sistem Informasi';
     $expertiseDescription = 'Fokus pada perancangan antarmuka inklusif, evaluasi prototipe dan pengujian perangkat lunak.';
@@ -285,7 +284,6 @@
         </form>
     </section>
 
-    {{-- Status hijau ini mengikuti mockup; datanya masih contoh dan belum tersimpan ke database. --}}
     <section class="profile-status" id="profileStatus" role="status" aria-live="polite">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>
         <div>
@@ -434,7 +432,6 @@
         });
 
         form.addEventListener('submit', function (event) {
-            // UI mockup: tidak mengirim data ke server sampai controller dan penyimpanan dibuat.
             event.preventDefault();
             statusBox.classList.add('preview');
             statusTitle.textContent = 'Mode pratinjau';
