@@ -1,36 +1,79 @@
 @extends('layouts.dosen')
+@use('App\Models\Bimbingan')
+@use('Illuminate\Support\Str')
+
 @section('title', 'Permintaan Konsultasi')
+@section('page_title', 'Permintaan Konsultasi')
+
+@push('styles')
+    @include('bimbingan._styles')
+@endpush
+
+@php
+    $tabs = ['menunggu' => 'Menunggu', 'ditanggapi' => 'Ditanggapi', 'ditolak' => 'Ditolak'];
+@endphp
 
 @section('content')
-    <div>
-        <h1 class="text-2xl font-bold text-indigo-950">Permintaan konsultasi</h1>
-        <p class="text-sm text-slate-500">Pertanyaan mahasiswa yang ditujukan kepada Anda.</p>
+<div class="bm-page">
+    @include('bimbingan._errors')
+
+    <div class="bm-head">
+        <div>
+            <h2>Permintaan konsultasi</h2>
+            <p>Pertanyaan dari mahasiswa bimbingan Anda. Mahasiswa baru bisa bertanya lagi setelah pertanyaan sebelumnya dijawab.</p>
+        </div>
     </div>
 
-    <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table class="w-full text-left text-sm">
-            <thead class="bg-slate-50 text-slate-500">
+    <div class="bm-tabs">
+        @foreach ($tabs as $key => $label)
+            <a href="{{ route('dosen.konsultasi.index', ['status' => $key, 'q' => $q ?: null]) }}"
+               class="bm-tab {{ $status === $key ? 'active' : '' }}">
+                {{ $label }}@if ($key === 'menunggu') ({{ $counts['menunggu'] ?? 0 }})@endif
+            </a>
+        @endforeach
+    </div>
+
+    <form method="GET" action="{{ route('dosen.konsultasi.index') }}">
+        <input type="hidden" name="status" value="{{ $status }}">
+        <label class="bm-search-label" for="q">Cari konsultasi</label>
+        <div class="bm-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="q" name="q" value="{{ $q }}" placeholder="Mahasiswa, tim, topik atau isi pertanyaan">
+        </div>
+    </form>
+
+    <div class="bm-table-wrap">
+        <table class="bm-table">
+            <thead>
                 <tr>
-                    <th class="px-4 py-3 font-medium">Kode</th>
-                    <th class="px-4 py-3 font-medium">Mahasiswa</th>
-                    <th class="px-4 py-3 font-medium">Pertanyaan</th>
-                    <th class="px-4 py-3 font-medium">Diterima</th>
-                    <th class="px-4 py-3 font-medium">Status</th>
+                    <th>Konsultasi</th>
+                    <th>Mahasiswa / tim</th>
+                    <th>Diterima</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse ($items as $item)
                     <tr>
-                        <td class="px-4 py-3 font-medium">K-{{ str_pad($item->konsultasi_id, 3, '0', STR_PAD_LEFT) }}</td>
-                        <td class="px-4 py-3">{{ $item->mahasiswa->name }}</td>
-                        <td class="px-4 py-3">{{ \Illuminate\Support\Str::limit($item->pertanyaan, 60) }}</td>
-                        <td class="px-4 py-3">{{ $item->created_at->format('d M Y') }}</td>
-                        <td class="px-4 py-3"><span class="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">{{ ucfirst($item->status) }}</span></td>
+                        <td>
+                            <span class="strong">{{ $item->kode }} · {{ Str::limit($item->bimbingan->topik_judul, 30) }}</span>
+                            <span class="sub">{{ Str::limit($item->pertanyaan, 70) }}</span>
+                        </td>
+                        <td>{{ $item->mahasiswa->name }} · {{ $item->bimbingan->nama_tim }}</td>
+                        <td>{{ Bimbingan::formatWaktu($item->created_at) }}</td>
+                        <td>@include('bimbingan._status', ['status' => $item->status])</td>
+                        <td>
+                            <a class="bm-link" href="{{ route('dosen.konsultasi.show', $item) }}">
+                                {{ $item->status === 'menunggu' ? 'Buka & tanggapi' : 'Lihat tanggapan' }}
+                            </a>
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">Belum ada konsultasi masuk.</td></tr>
+                    <tr><td colspan="5" class="empty">Tidak ada konsultasi pada tab ini.</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+</div>
 @endsection

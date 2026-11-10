@@ -1,43 +1,356 @@
-@php
-    $user = auth()->user();
-@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'TEL-COMPT')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-slate-50 text-slate-800 antialiased">
-<div class="flex min-h-screen flex-col md:flex-row">
-    <aside class="bg-indigo-900 px-4 py-5 text-indigo-100 md:w-60 md:shrink-0">
-        <p class="px-2 text-xl font-bold tracking-wide text-white">TEL-COMPT</p>
-        <p class="px-2 text-xs text-indigo-300">Telkom University</p>
-        <p class="mt-5 rounded-md bg-indigo-700/60 px-3 py-2 text-sm">Mahasiswa</p>
-        <nav class="mt-4">
-            <a href="{{ route('konsultasi.index') }}" class="block rounded-md bg-indigo-700 px-3 py-2 text-sm font-medium text-white">Konsultasi</a>
-        </nav>
-        <p class="mt-6 border-t border-indigo-700 px-2 pt-4 text-sm font-medium text-white">{{ $user->name }}</p>
-        <p class="px-2 text-xs text-indigo-300">Sistem Informasi</p>
-    </aside>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <main class="mx-auto w-full max-w-4xl space-y-5 p-6">
-        @if (session('status'))
-            <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{{ session('status') }}</div>
-        @endif
-        @if ($errors->any())
-            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <ul class="list-inside list-disc">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+    <title>@yield('title', 'Bimbingan') · TEL-COMPT</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-bg: #32289b;
+            --sidebar-active: rgba(255, 255, 255, .16);
+            --sidebar-hover: rgba(255, 255, 255, .08);
+            --sidebar-text: #d8d6f5;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --ink: #1b2559;
+            --muted: #71809f;
+            --line: #dfe6f1;
+            --surface: #ffffff;
+            --page: #f7f9fc;
+            --sidebar-w: 222px;
+            --topbar-h: 65px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; min-height: 100%; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--page);
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+        button, input, textarea, select { font: inherit; }
+        button { cursor: pointer; }
+        :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--sidebar-w);
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            padding: 28px 15px 24px;
+            z-index: 40;
+            overflow-y: auto;
+            transition: transform .2s ease;
+        }
+        .brand { padding: 0 12px; margin-bottom: 24px; }
+        .brand-name { font-size: 22px; font-weight: 700; letter-spacing: .2px; color: #fff; line-height: 1.2; }
+        .brand-sub { font-size: 12px; color: var(--sidebar-text); margin-top: 5px; }
+        .role-badge {
+            background: var(--sidebar-active);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 7px;
+            margin-bottom: 27px;
+        }
+        .nav { display: flex; flex-direction: column; gap: 5px; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 40px;
+            padding: 10px 12px;
+            border-radius: 7px;
+            color: var(--sidebar-text);
+            font-size: 13px;
+            transition: background .15s ease, color .15s ease;
+        }
+        .nav-link svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active { background: var(--sidebar-active); color: #fff; font-weight: 600; }
+        .sidebar-footer { margin-top: auto; padding: 24px 12px 0; border-top: 1px solid rgba(255,255,255,.15); }
+        .sidebar-footer .name { color: #fff; font-weight: 600; font-size: 13px; }
+        .sidebar-footer .meta { font-size: 12px; margin-top: 5px; }
+        .logout-btn { background: none; border: 0; padding: 0; color: inherit; font-size: 12px; }
+        .logout-btn:hover { color: #fff; text-decoration: underline; }
+
+        /* Main content and topbar */
+        .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            height: var(--topbar-h);
+            flex-shrink: 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .topbar-title { font-size: 13px; font-weight: 600; margin: 0; color: #1e2a4b; }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink);
+        }
+        .menu-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+        .topbar-right { display: flex; align-items: center; gap: 15px; }
+        .bell {
+            display: inline-flex;
+            width: 30px;
+            height: 32px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: var(--muted);
+            background: none;
+            border: 0;
+        }
+        .bell:hover { background: var(--page); color: var(--ink); }
+        .bell svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .profile { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #edf4ff;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+        }
+        .content { flex: 1; width: 100%; padding: 31px 30px 20px; }
+        .flash { border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; }
+        .flash.success { background: #e8f7ee; color: #14703a; border: 1px solid #bfe6cf; }
+        .flash.error { background: #fdecec; color: #a62121; border: 1px solid #f5c2c2; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 18, 50, .45); z-index: 35; }
+
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            body.sidebar-open .overlay { display: block; }
+            .main { margin-left: 0; }
+            .menu-toggle { display: inline-flex; }
+            .topbar { padding: 0 16px; }
+            .content { padding: 24px 16px 18px; }
+        }
+        @media (max-width: 480px) {
+            .content { padding: 20px 12px 16px; }
+            .topbar-right { gap: 8px; }
+            .profile { gap: 8px; }
+        }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+
+    @stack('styles')
+</head>
+<body>
+@php
+    $menus = [
+        [
+            'label' => 'Beranda',
+            'href' => url('/mahasiswa/beranda'),
+            'match' => 'mahasiswa/beranda*',
+            'icon' => '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+        ],
+        [
+            'label' => 'Katalog Lomba',
+            'href' => url('/katalog-lomba'),
+            'match' => 'katalog-lomba*',
+            'icon' => '<path d="M8 21h8M12 17v4M7 4h10l-1 8-4 3-4-3-1-8Z"/><path d="M7 6H4v3c0 2 1 3 4 3M17 6h3v3c0 2-1 3-4 3"/>',
+        ],
+        [
+            'label' => 'Lomba Saya',
+            'href' => url('/lomba-saya'),
+            'match' => 'lomba-saya*',
+            'icon' => '<path d="M6 3h12a2 2 0 0 1 2 2v16l-8-4-8 4V5a2 2 0 0 1 2-2Z"/>',
+        ],
+        [
+            'label' => 'Usulkan Lomba',
+            'href' => url('/usulkan-lomba'),
+            'match' => 'usulkan-lomba*',
+            'icon' => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/>',
+        ],
+        [
+            'label' => 'Bimbingan',
+            'href' => url('/bimbingan'),
+            'match' => 'bimbingan*',
+            'icon' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+        ],
+        [
+            'label' => 'Prestasi & Arsip',
+            'href' => url('/prestasi-arsip'),
+            'match' => 'prestasi-arsip*',
+            'icon' => '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+        ],
+        [
+            'label' => 'Riwayat Pengajuan',
+            'href' => url('/riwayat-pengajuan'),
+            'match' => 'riwayat-pengajuan*',
+            'icon' => '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+        ],
+        [
+            'label' => 'Pengetahuan & Prestasi',
+            'href' => url('/pengetahuan-prestasi'),
+            'match' => 'pengetahuan-prestasi*',
+            'icon' => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+        ],
+        [
+            'label' => 'Notifikasi',
+            'href' => url('/notifikasi'),
+            'match' => 'notifikasi*',
+            'icon' => '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+        ],
+        [
+            'label' => 'Profil',
+            'href' => url('/profil'),
+            'match' => 'profil*',
+            'icon' => '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+        ],
+    ];
+
+    $userName = auth()->user()->name ?? 'Nadia Pramesti';
+    $initials = collect(explode(' ', trim($userName)))
+        ->filter()
+        ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
+        ->take(2)
+        ->implode('') ?: 'NP';
+    $unread = $unreadNotifications ?? 0;
+@endphp
+
+<div class="overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+<aside class="sidebar" id="mahasiswaSidebar" aria-label="Navigasi Mahasiswa">
+    <div class="brand">
+        <div class="brand-name">TEL-COMPT</div>
+        <div class="brand-sub">Telkom University</div>
+    </div>
+
+    <div class="role-badge">Mahasiswa</div>
+
+    <nav class="nav" aria-label="Menu utama Mahasiswa">
+        @foreach ($menus as $menu)
+            <a href="{{ $menu['href'] }}"
+               class="nav-link {{ request()->is($menu['match']) ? 'active' : '' }}"
+               @if (request()->is($menu['match'])) aria-current="page" @endif>
+                <svg viewBox="0 0 24 24" aria-hidden="true">{!! $menu['icon'] !!}</svg>
+                <span>{{ $menu['label'] }}</span>
+            </a>
+        @endforeach
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="name">{{ $userName }}</div>
+        <div class="meta">
+            Sistem Informasi ·
+            @if (\Illuminate\Support\Facades\Route::has('logout'))
+                <form method="POST" action="{{ route('logout') }}" style="display:inline">
+                    @csrf
+                    <button type="submit" class="logout-btn">Keluar</button>
+                </form>
+            @else
+                <a href="{{ url('/logout') }}" class="logout-btn">Keluar</a>
+            @endif
+        </div>
+    </div>
+</aside>
+
+<div class="main">
+    <header class="topbar">
+        <div class="topbar-left">
+            <button type="button" class="menu-toggle" id="mahasiswaMenuToggle" aria-label="Buka menu" aria-controls="mahasiswaSidebar" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <h1 class="topbar-title">@yield('page_title', 'Bimbingan')</h1>
+        </div>
+
+        <div class="topbar-right">
+            <a href="{{ url('/notifikasi') }}" class="bell" aria-label="Notifikasi{{ $unread ? ' ('.$unread.' belum dibaca)' : '' }}">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                </svg>
+                @if ($unread > 0)
+                    <span class="notification-dot">{{ $unread > 99 ? '99+' : $unread }}</span>
+                @endif
+            </a>
+            <div class="profile">
+                <span>Mahasiswa</span>
+                <span class="avatar" aria-hidden="true">{{ $initials }}</span>
             </div>
+        </div>
+    </header>
+
+    <main class="content">
+        @if (session('success'))
+            <div class="flash success" role="status">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="flash error" role="alert">{{ session('error') }}</div>
         @endif
 
         @yield('content')
     </main>
 </div>
+
+<script>
+    (function () {
+        const body = document.body;
+        const toggle = document.getElementById('mahasiswaMenuToggle');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        if (!toggle || !overlay) return;
+
+        function setOpen(open) {
+            body.classList.toggle('sidebar-open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        toggle.addEventListener('click', function () {
+            setOpen(!body.classList.contains('sidebar-open'));
+        });
+        overlay.addEventListener('click', function () { setOpen(false); });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') setOpen(false);
+        });
+    })();
+</script>
+
+@stack('scripts')
 </body>
 </html>
