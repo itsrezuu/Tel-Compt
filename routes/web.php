@@ -35,3 +35,16 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
         ->name('profil-keahlian');
 
 });
+
+// ---- SCRUM-28 + SCRUM-29: Bimbingan + konsultasi (route ada di routes/bimbingan.php) ----
+require __DIR__.'/bimbingan.php';
+
+// LOGIN SEMENTARA untuk development lokal. HAPUS setelah login asli jadi.
+if (app()->environment('local')) {
+    Route::get('/dev/login/{role}', function (string $role) {
+        $user = \App\Models\User::where('role', $role)->orderBy('id')->firstOrFail();
+        \Illuminate\Support\Facades\Auth::login($user);
+
+        return redirect($role === 'mahasiswa' ? '/bimbingan' : '/dosen/permintaan-bimbingan');
+    })->whereIn('role', ['mahasiswa', 'dosen']);
+}
