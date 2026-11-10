@@ -1,6 +1,11 @@
 @extends('layouts.mahasiswa')
 
 @section('title', $lomba->judul)
+@section('page_title', 'Detail Lomba')
+
+@push('styles')
+    @vite('resources/css/katalog-lomba.css')
+@endpush
 
 @section('content')
 <div class="katalog">

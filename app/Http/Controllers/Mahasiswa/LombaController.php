@@ -11,6 +11,12 @@ class LombaController extends Controller
 {
     private const PER_HALAMAN = 6;
 
+    /**
+     * Lomba yang disimpan disimpan di session (belum ada login).
+     * Saat login sudah ada, ganti ke relasi User::lombaTersimpan().
+     */
+    private const SESSION_TERSIMPAN = 'lomba_tersimpan';
+
     public function index(Request $request)
     {
         $filter = $request->validate([
@@ -30,16 +36,10 @@ class LombaController extends Controller
             ->paginate(self::PER_HALAMAN)
             ->withQueryString();
 
-        $idTersimpan = $request->user()
-            ->lombaTersimpan()
-            ->whereIn('lomba.id', $daftarLomba->pluck('id'))
-            ->pluck('lomba.id')
-            ->all();
-
         return view('mahasiswa.lomba.index', [
             'daftarLomba'        => $daftarLomba,
             'filter'             => $filter,
-            'idTersimpan'        => $idTersimpan,
+            'idTersimpan'        => $this->idTersimpan($request),
             'daftarKategori'     => Lomba::KATEGORI,
             'daftarTingkat'      => Lomba::TINGKAT,
             'daftarPendampingan' => Lomba::PENDAMPINGAN,
@@ -52,8 +52,7 @@ class LombaController extends Controller
 
         return view('mahasiswa.lomba.show', [
             'lomba'     => $lomba,
-            'tersimpan' => $request->user()->lombaTersimpan()
-                ->where('lomba.id', $lomba->id)->exists(),
+            'tersimpan' => in_array($lomba->id, $this->idTersimpan($request), true),
         ]);
     }
 
@@ -61,8 +60,20 @@ class LombaController extends Controller
     {
         abort_unless($lomba->status === Lomba::STATUS_TAYANG, 404);
 
-        $request->user()->lombaTersimpan()->toggle($lomba->id);
+        $id = $this->idTersimpan($request);
+
+        $id = in_array($lomba->id, $id, true)
+            ? array_values(array_diff($id, [$lomba->id]))
+            : [...$id, $lomba->id];
+
+        $request->session()->put(self::SESSION_TERSIMPAN, $id);
 
         return back();
+    }
+
+    /** @return int[] */
+    private function idTersimpan(Request $request): array
+    {
+        return array_map('intval', $request->session()->get(self::SESSION_TERSIMPAN, []));
     }
 }
