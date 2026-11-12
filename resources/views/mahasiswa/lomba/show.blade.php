@@ -1,6 +1,6 @@
 @extends('layouts.mahasiswa')
 
-@section('title', $lomba->judul)
+@section('title', $lomba->judul_lomba)
 @section('page_title', 'Detail Lomba')
 
 @push('styles')
@@ -24,7 +24,7 @@
             </form>
         </div>
 
-        <h1 class="detail-title">{{ $lomba->judul }}</h1>
+        <h1 class="detail-title">{{ $lomba->judul_lomba }}</h1>
         <p class="comp-org">{{ $lomba->penyelenggara }}</p>
 
         <dl class="detail-meta">

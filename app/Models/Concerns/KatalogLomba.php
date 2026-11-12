@@ -6,32 +6,34 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Tambahkan ke model Lomba:  use \App\Models\Concerns\KatalogLomba;
+ * Dipakai model Lomba:  use \App\Models\Concerns\KatalogLomba;
  *
- * ASUMSI KOLOM tabel `lomba` (ubah di sini + di view jika berbeda):
- *   judul, penyelenggara, kategori, tingkat, jenis_pendampingan,
- *   batas_pendaftaran (date), deskripsi, link_pendaftaran, status
+ * Mengikuti tabel `lomba` milik Admin HIMA (SCRUM-23):
+ *   lomba_id, judul_lomba, penyelenggara, kategori, tingkat,
+ *   tenggat_pendaftaran (date), link_pendaftaran, deskripsi,
+ *   jenis_pendampingan, status_publikasi
  */
 trait KatalogLomba
 {
-    public const KATEGORI = ['Teknologi', 'Desain', 'Bisnis', 'Karya tulis', 'Riset'];
-    public const TINGKAT = ['Regional', 'Nasional', 'Internasional'];
+    // Samakan dengan pilihan di form Admin HIMA (admin-hima/lomba/_form.blade.php)
+    public const KATEGORI = ['Teknologi', 'Desain', 'Bisnis', 'Karya tulis'];
+    public const TINGKAT = ['Nasional', 'Regional', 'Internasional', 'Internal kampus'];
     public const PENDAMPINGAN = [
-        'formal'   => 'Bimbingan formal',
-        'opsional' => 'Konsultasi opsional',
-        'tanpa'    => 'Tanpa pendampingan',
+        'tanpa pendampingan'     => 'Tanpa pendampingan',
+        'konsultasi ringan'      => 'Konsultasi ringan',
+        'pembimbing resmi wajib' => 'Pembimbing resmi wajib',
     ];
-    /** Nilai kolom `status` untuk lomba yang sudah dikurasi HIMA. */
-    public const STATUS_TAYANG = 'published';
+    /** Nilai `status_publikasi` untuk lomba yang tampil di katalog. */
+    public const STATUS_TAYANG = 'dipublikasikan';
 
     public function scopeTayang(Builder $q): Builder
     {
-        return $q->where('status', self::STATUS_TAYANG);
+        return $q->where('status_publikasi', self::STATUS_TAYANG);
     }
 
     public function scopeMasihBuka(Builder $q): Builder
     {
-        return $q->whereDate('batas_pendaftaran', '>=', now()->toDateString());
+        return $q->whereDate('tenggat_pendaftaran', '>=', now()->toDateString());
     }
 
     public function scopeCari(Builder $q, ?string $kata): Builder
@@ -42,7 +44,7 @@ trait KatalogLomba
         $like = '%' . addcslashes(trim($kata), '%_\\') . '%';
 
         return $q->where(fn (Builder $w) => $w
-            ->where('judul', 'like', $like)
+            ->where('judul_lomba', 'like', $like)
             ->orWhere('penyelenggara', 'like', $like));
     }
 
@@ -58,12 +60,12 @@ trait KatalogLomba
     {
         return $urut === 'terbaru'
             ? $q->latest('created_at')
-            : $q->orderBy('batas_pendaftaran')->orderBy('id');
+            : $q->orderBy('tenggat_pendaftaran')->orderBy($q->getModel()->getKeyName());
     }
 
     public function getBatasLabelAttribute(): string
     {
-        return Carbon::parse($this->batas_pendaftaran)->locale('id')->translatedFormat('d M Y');
+        return Carbon::parse($this->tenggat_pendaftaran)->locale('id')->translatedFormat('d M Y');
     }
 
     public function getPendampinganLabelAttribute(): string

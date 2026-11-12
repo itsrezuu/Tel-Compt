@@ -13,7 +13,8 @@ class LombaController extends Controller
 
     /**
      * Lomba yang disimpan disimpan di session (belum ada login).
-     * Saat login sudah ada, ganti ke relasi User::lombaTersimpan().
+     * Saat login sudah ada, ganti ke relasi User::lombaTersimpan()
+     * (tabel lomba_bookmarks sudah tersedia).
      */
     private const SESSION_TERSIMPAN = 'lomba_tersimpan';
 
@@ -48,23 +49,23 @@ class LombaController extends Controller
 
     public function show(Request $request, Lomba $lomba)
     {
-        abort_unless($lomba->status === Lomba::STATUS_TAYANG, 404);
+        abort_unless($lomba->status_publikasi === Lomba::STATUS_TAYANG, 404);
 
         return view('mahasiswa.lomba.show', [
             'lomba'     => $lomba,
-            'tersimpan' => in_array($lomba->id, $this->idTersimpan($request), true),
+            'tersimpan' => in_array((int) $lomba->getKey(), $this->idTersimpan($request), true),
         ]);
     }
 
     public function simpan(Request $request, Lomba $lomba)
     {
-        abort_unless($lomba->status === Lomba::STATUS_TAYANG, 404);
+        abort_unless($lomba->status_publikasi === Lomba::STATUS_TAYANG, 404);
 
         $id = $this->idTersimpan($request);
 
-        $id = in_array($lomba->id, $id, true)
-            ? array_values(array_diff($id, [$lomba->id]))
-            : [...$id, $lomba->id];
+        $id = in_array((int) $lomba->getKey(), $id, true)
+            ? array_values(array_diff($id, [(int) $lomba->getKey()]))
+            : [...$id, (int) $lomba->getKey()];
 
         $request->session()->put(self::SESSION_TERSIMPAN, $id);
 

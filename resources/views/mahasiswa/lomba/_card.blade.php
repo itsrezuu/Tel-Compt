@@ -1,4 +1,4 @@
-@php $disimpan = in_array($lomba->id, $idTersimpan ?? [], true); @endphp
+@php $disimpan = in_array((int) $lomba->getKey(), $idTersimpan ?? [], true); @endphp
 
 <article class="card comp-card">
     <div class="comp-top">
@@ -8,13 +8,13 @@
             @csrf
             <button type="submit" class="bookmark {{ $disimpan ? 'on' : '' }}"
                     aria-pressed="{{ $disimpan ? 'true' : 'false' }}"
-                    aria-label="{{ $disimpan ? 'Hapus dari Lomba Saya' : 'Simpan ke Lomba Saya' }}: {{ $lomba->judul }}">
+                    aria-label="{{ $disimpan ? 'Hapus dari Lomba Saya' : 'Simpan ke Lomba Saya' }}: {{ $lomba->judul_lomba }}">
                 <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/>@if($disimpan)<path d="M9 9l2 2 4-4"/>@endif</svg>
             </button>
         </form>
     </div>
 
-    <h2 class="comp-title">{{ $lomba->judul }}</h2>
+    <h2 class="comp-title">{{ $lomba->judul_lomba }}</h2>
     <p class="comp-org">{{ $lomba->penyelenggara }}</p>
 
     <p class="comp-deadline">
