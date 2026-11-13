@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminHima\LombaController;
+use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,6 +36,16 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
         ->name('profil-keahlian');
 
 });
+
+// ---- SCRUM-24: Katalog lomba mahasiswa (sementara tanpa login) ----
+// Saat login sudah ada, tambahkan ->middleware(['auth', 'role:mahasiswa'])
+Route::prefix('mahasiswa')
+    ->name('mahasiswa.')
+    ->group(function () {
+        Route::get('/lomba', [MahasiswaLombaController::class, 'index'])->name('lomba.index');
+        Route::get('/lomba/{lomba}', [MahasiswaLombaController::class, 'show'])->name('lomba.show');
+        Route::post('/lomba/{lomba}/simpan', [MahasiswaLombaController::class, 'simpan'])->name('lomba.simpan');
+    });
 
 // ---- SCRUM-28 + SCRUM-29: Bimbingan + konsultasi (route ada di routes/bimbingan.php) ----
 require __DIR__.'/bimbingan.php';

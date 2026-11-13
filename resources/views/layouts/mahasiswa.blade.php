@@ -190,8 +190,8 @@
         ],
         [
             'label' => 'Katalog Lomba',
-            'href' => url('/katalog-lomba'),
-            'match' => 'katalog-lomba*',
+            'href' => route('mahasiswa.lomba.index'),
+            'match' => 'mahasiswa/lomba*',
             'icon' => '<path d="M8 21h8M12 17v4M7 4h10l-1 8-4 3-4-3-1-8Z"/><path d="M7 6H4v3c0 2 1 3 4 3M17 6h3v3c0 2-1 3-4 3"/>',
         ],
         [
