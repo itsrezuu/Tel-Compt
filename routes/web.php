@@ -29,6 +29,8 @@ Route::prefix('admin-hima')->name('admin.lomba.')->group(function () {
 
 });
 
+require __DIR__.'/usulan.php';
+
 Route::prefix('dosen')->name('dosen.')->group(function () {
 
     Route::view('/profil-keahlian', 'dosen.profil-keahlian')
