@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminHima\LombaController;
+use App\Http\Controllers\Dosen\ProfilKeahlianController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,8 +31,9 @@ Route::prefix('admin-hima')->name('admin.lomba.')->group(function () {
 });
 
 Route::prefix('dosen')->name('dosen.')->group(function () {
-
-    Route::view('/profil-keahlian', 'dosen.profil-keahlian')
+    Route::get('/profil-keahlian', [ProfilKeahlianController::class, 'index'])
         ->name('profil-keahlian');
 
+    Route::post('/profil-keahlian', [ProfilKeahlianController::class, 'update'])
+        ->name('profil-keahlian.update');
 });

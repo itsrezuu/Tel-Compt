@@ -28,8 +28,16 @@
             --topbar-h: 65px;
         }
 
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; min-height: 100%; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
         body {
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: var(--page);
@@ -38,10 +46,24 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
-        a { color: inherit; text-decoration: none; }
-        button, input, textarea, select { font: inherit; }
-        button { cursor: pointer; }
-        :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, textarea, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
 
         /* Sidebar */
         .sidebar {
@@ -57,9 +79,26 @@
             overflow-y: auto;
             transition: transform .2s ease;
         }
-        .brand { padding: 0 12px; margin-bottom: 24px; }
-        .brand-name { font-size: 22px; font-weight: 700; letter-spacing: .2px; color: #fff; line-height: 1.2; }
-        .brand-sub { font-size: 12px; color: var(--sidebar-text); margin-top: 5px; }
+
+        .brand {
+            padding: 0 12px;
+            margin-bottom: 24px;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: .2px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--sidebar-text);
+            margin-top: 5px;
+        }
+
         .role-badge {
             background: var(--sidebar-active);
             color: #fff;
@@ -69,7 +108,13 @@
             border-radius: 7px;
             margin-bottom: 27px;
         }
-        .nav { display: flex; flex-direction: column; gap: 5px; }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
         .nav-link {
             display: flex;
             align-items: center;
@@ -81,6 +126,7 @@
             font-size: 13px;
             transition: background .15s ease, color .15s ease;
         }
+
         .nav-link svg {
             width: 18px;
             height: 18px;
@@ -91,16 +137,89 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
-        .nav-link.active { background: var(--sidebar-active); color: #fff; font-weight: 600; }
-        .sidebar-footer { margin-top: auto; padding: 24px 12px 0; border-top: 1px solid rgba(255,255,255,.15); }
-        .sidebar-footer .name { color: #fff; font-weight: 600; font-size: 13px; }
-        .sidebar-footer .meta { font-size: 12px; margin-top: 5px; }
-        .logout-btn { background: none; border: 0; padding: 0; color: inherit; font-size: 12px; }
-        .logout-btn:hover { color: #fff; text-decoration: underline; }
 
-        /* Main content and topbar */
-        .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: #fff;
+        }
+
+        .nav-link.active {
+            background: var(--sidebar-active);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Identitas dosen dan foto profil sidebar */
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 24px 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, .15);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .sidebar-avatar {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #edf4ff;
+            color: #2563eb;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .sidebar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .sidebar-user-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .sidebar-footer .name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .sidebar-footer .meta {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 0;
+            padding: 0;
+            color: inherit;
+            font-size: 12px;
+        }
+
+        .logout-btn:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Topbar */
         .topbar {
             position: sticky;
             top: 0;
@@ -114,8 +233,21 @@
             justify-content: space-between;
             padding: 0 30px;
         }
-        .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .topbar-title { font-size: 13px; font-weight: 600; margin: 0; color: #1e2a4b; }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0;
+            color: #1e2a4b;
+        }
+
         .menu-toggle {
             display: none;
             background: none;
@@ -127,9 +259,24 @@
             justify-content: center;
             color: var(--ink);
         }
-        .menu-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
-        .topbar-right { display: flex; align-items: center; gap: 15px; }
+
+        .menu-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .bell {
+            position: relative;
             display: inline-flex;
             width: 30px;
             height: 32px;
@@ -140,47 +287,184 @@
             background: none;
             border: 0;
         }
-        .bell:hover { background: var(--page); color: var(--ink); }
-        .bell svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-        .profile { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
+
+        .bell:hover {
+            background: var(--page);
+            color: var(--ink);
+        }
+
+        .bell svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bell .notification-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 999px;
+            background: #dc2626;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 16px;
+            text-align: center;
+            border: 2px solid var(--surface);
+            box-sizing: content-box;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* Avatar pojok kanan atas */
         .avatar {
             width: 32px;
             height: 32px;
+            flex: 0 0 32px;
             border-radius: 50%;
             background: #edf4ff;
             color: var(--primary);
             font-size: 12px;
             font-weight: 700;
-            display: grid;
-            place-items: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-        .content { flex: 1; width: 100%; padding: 31px 30px 20px; }
-        .flash { border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 14px; }
-        .flash.success { background: #e8f7ee; color: #14703a; border: 1px solid #bfe6cf; }
-        .flash.error { background: #fdecec; color: #a62121; border: 1px solid #f5c2c2; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 18, 50, .45); z-index: 35; }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            width: 100%;
+            padding: 31px 30px 20px;
+        }
+
+        .flash {
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .flash.success {
+            background: #e8f7ee;
+            color: #14703a;
+            border: 1px solid #bfe6cf;
+        }
+
+        .flash.error {
+            background: #fdecec;
+            color: #a62121;
+            border: 1px solid #f5c2c2;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 18, 50, .45);
+            z-index: 35;
+        }
 
         @media (max-width: 900px) {
-            .sidebar { transform: translateX(-100%); }
-            body.sidebar-open .sidebar { transform: translateX(0); }
-            body.sidebar-open .overlay { display: block; }
-            .main { margin-left: 0; }
-            .menu-toggle { display: inline-flex; }
-            .topbar { padding: 0 16px; }
-            .content { padding: 24px 16px 18px; }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            body.sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+
+            body.sidebar-open .overlay {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: inline-flex;
+            }
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .content {
+                padding: 24px 16px 18px;
+            }
         }
+
         @media (max-width: 480px) {
-            .content { padding: 20px 12px 16px; }
-            .topbar-right { gap: 8px; }
-            .profile { gap: 8px; }
+            .content {
+                padding: 20px 12px 16px;
+            }
+
+            .topbar-right {
+                gap: 8px;
+            }
+
+            .profile {
+                gap: 8px;
+            }
+
+            .sidebar-footer {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
         }
-        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
     </style>
 
     @stack('styles')
 </head>
+
 <body>
 @php
+    $currentUser = auth()->user();
+
+    $userName = $currentUser->name ?? 'Dosen';
+
+    $profilePhoto = $currentUser->foto_profil ?? null;
+
+    $photoUrl = $profilePhoto
+        ? asset('storage/' . $profilePhoto)
+        : null;
+
+    $initials = collect(explode(' ', trim($userName)))
+        ->filter()
+        ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
+        ->take(2)
+        ->implode('') ?: 'D';
+
+    $unread = $unreadNotifications ?? 0;
+
     $menus = [
         [
             'label' => 'Dasbor',
@@ -219,14 +503,6 @@
             'icon' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
         ],
     ];
-
-    $userName = auth()->user()->name ?? 'Dimas Arunika';
-    $initials = collect(explode(' ', trim($userName)))
-        ->filter()
-        ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
-        ->take(2)
-        ->implode('') ?: 'DA';
-    $unread = $unreadNotifications ?? 0;
 @endphp
 
 <div class="overlay" id="sidebarOverlay" aria-hidden="true"></div>
@@ -241,27 +517,44 @@
 
     <nav class="nav" aria-label="Menu utama Dosen">
         @foreach ($menus as $menu)
-            <a href="{{ $menu['href'] }}"
-               class="nav-link {{ request()->is($menu['match']) ? 'active' : '' }}"
-               @if (request()->is($menu['match'])) aria-current="page" @endif>
-                <svg viewBox="0 0 24 24" aria-hidden="true">{!! $menu['icon'] !!}</svg>
+            <a
+                href="{{ $menu['href'] }}"
+                class="nav-link {{ request()->is($menu['match']) ? 'active' : '' }}"
+                @if (request()->is($menu['match'])) aria-current="page" @endif
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    {!! $menu['icon'] !!}
+                </svg>
                 <span>{{ $menu['label'] }}</span>
             </a>
         @endforeach
     </nav>
 
+    {{-- Identitas dosen di sidebar --}}
     <div class="sidebar-footer">
-        <div class="name">{{ $userName }}</div>
-        <div class="meta">
-            Sistem Informasi ·
-            @if (\Illuminate\Support\Facades\Route::has('logout'))
-                <form method="POST" action="{{ route('logout') }}" style="display:inline">
-                    @csrf
-                    <button type="submit" class="logout-btn">Keluar</button>
-                </form>
+        <div class="sidebar-avatar">
+            @if ($photoUrl)
+                <img src="{{ $photoUrl }}" alt="Foto {{ $userName }}">
             @else
-                <a href="{{ url('/logout') }}" class="logout-btn">Keluar</a>
+                {{ $initials }}
             @endif
+        </div>
+
+        <div class="sidebar-user-info">
+            <div class="name">{{ $userName }}</div>
+
+            <div class="meta">
+                {{ $currentUser->program_studi ?? 'Dosen' }} ·
+
+                @if (\Illuminate\Support\Facades\Route::has('logout'))
+                    <form method="POST" action="{{ route('logout') }}" style="display:inline">
+                        @csrf
+                        <button type="submit" class="logout-btn">Keluar</button>
+                    </form>
+                @else
+                    <a href="{{ url('/logout') }}" class="logout-btn">Keluar</a>
+                @endif
+            </div>
         </div>
     </div>
 </aside>
@@ -269,35 +562,66 @@
 <div class="main">
     <header class="topbar">
         <div class="topbar-left">
-            <button type="button" class="menu-toggle" id="dosenMenuToggle" aria-label="Buka menu" aria-controls="dosenSidebar" aria-expanded="false">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <button
+                type="button"
+                class="menu-toggle"
+                id="dosenMenuToggle"
+                aria-label="Buka menu"
+                aria-controls="dosenSidebar"
+                aria-expanded="false"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
             </button>
+
             <h1 class="topbar-title">@yield('page_title', 'Profil & Keahlian')</h1>
         </div>
 
         <div class="topbar-right">
-            <a href="{{ url('/dosen/notifikasi') }}" class="bell" aria-label="Notifikasi{{ $unread ? ' ('.$unread.' belum dibaca)' : '' }}">
+            <a
+                href="{{ url('/dosen/notifikasi') }}"
+                class="bell"
+                aria-label="Notifikasi{{ $unread ? ' ('.$unread.' belum dibaca)' : '' }}"
+            >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
                     <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
                 </svg>
+
                 @if ($unread > 0)
-                    <span class="notification-dot">{{ $unread > 99 ? '99+' : $unread }}</span>
+                    <span class="notification-dot">
+                        {{ $unread > 99 ? '99+' : $unread }}
+                    </span>
                 @endif
             </a>
+
             <div class="profile">
                 <span>Dosen</span>
-                <span class="avatar" aria-hidden="true">{{ $initials }}</span>
+
+                {{-- Avatar pojok kanan atas --}}
+                <span class="avatar">
+                    @if ($photoUrl)
+                        <img src="{{ $photoUrl }}" alt="Foto {{ $userName }}">
+                    @else
+                        {{ $initials }}
+                    @endif
+                </span>
             </div>
         </div>
     </header>
 
     <main class="content">
         @if (session('success'))
-            <div class="flash success" role="status">{{ session('success') }}</div>
+            <div class="flash success" role="status">
+                {{ session('success') }}
+            </div>
         @endif
+
         @if (session('error'))
-            <div class="flash error" role="alert">{{ session('error') }}</div>
+            <div class="flash error" role="alert">
+                {{ session('error') }}
+            </div>
         @endif
 
         @yield('content')
@@ -320,9 +644,15 @@
         toggle.addEventListener('click', function () {
             setOpen(!body.classList.contains('sidebar-open'));
         });
-        overlay.addEventListener('click', function () { setOpen(false); });
+
+        overlay.addEventListener('click', function () {
+            setOpen(false);
+        });
+
         document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') setOpen(false);
+            if (event.key === 'Escape') {
+                setOpen(false);
+            }
         });
     })();
 </script>

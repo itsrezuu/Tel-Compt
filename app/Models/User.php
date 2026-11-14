@@ -2,26 +2,40 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'program_studi',
+    'deskripsi_keahlian',
+    'foto_profil',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function keahlian(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            BidangKeahlian::class,
+            'keahlian_dosen',
+            'user_id',
+            'bidang_keahlian_id',
+            'id',
+            'bidang_keahlian_id'
+        )->withTimestamps();
+    }
+
     protected function casts(): array
     {
         return [
