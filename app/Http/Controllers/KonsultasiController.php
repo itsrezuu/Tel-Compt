@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Bimbingan;
 use App\Models\Konsultasi;
+use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +29,7 @@ class KonsultasiController extends Controller
             'pertanyaan' => ['required', 'string', 'max:1000'],
         ]);
 
-        DB::transaction(function () use ($bimbingan, $data) {
+        $konsultasi = DB::transaction(function () use ($bimbingan, $data) {
             // Kunci baris bimbingan supaya klik ganda tidak meloloskan dua konsultasi sekaligus.
             $b = Bimbingan::whereKey($bimbingan->getKey())->lockForUpdate()->firstOrFail();
 
@@ -47,7 +49,7 @@ class KonsultasiController extends Controller
                 ]);
             }
 
-            Konsultasi::create([
+            return Konsultasi::create([
                 'bimbingan_id' => $b->getKey(),
                 'mahasiswa_id' => $b->mahasiswa_id,
                 'dosen_id' => $b->dosen_id, // selalu ke pembimbing
@@ -56,8 +58,15 @@ class KonsultasiController extends Controller
             ]);
         });
 
-        return redirect()->route('bimbingan.show', $bimbingan)
-            ->with('success', 'Konsultasi terkirim ke pembimbing. Kamu bisa mengirim konsultasi berikutnya setelah dijawab.');
+        User::find($konsultasi->dosen_id)?->notify(new ActivityNotification(
+            'Konsultasi baru',
+            "{$konsultasi->mahasiswa?->name} mengirim konsultasi {$konsultasi->kode}.",
+            'konsultasi_dibuat',
+            (int) $konsultasi->getKey(),
+            route('dosen.konsultasi.show', $konsultasi),
+        ));
+
+        return redirect()->route('bimbingan.show', $bimbingan)->with('success', 'Konsultasi terkirim ke pembimbing. Kamu bisa mengirim konsultasi berikutnya setelah dijawab.');
     }
 
     // Dosen: daftar konsultasi dari mahasiswa bimbingannya (tab status + pencarian)
@@ -131,6 +140,15 @@ class KonsultasiController extends Controller
             return redirect()->route('dosen.konsultasi.show', $konsultasi)
                 ->with('error', 'Konsultasi ini sudah diproses.');
         }
+
+        $statusText = $data['aksi'] === 'tanggapi' ? 'ditanggapi' : 'ditolak';
+        User::find($konsultasi->mahasiswa_id)?->notify(new ActivityNotification(
+            'Tanggapan konsultasi',
+            "Konsultasimu {$konsultasi->kode} telah {$statusText}. Catatan: {$data['catatan']}",
+            'konsultasi_status',
+            (int) $konsultasi->getKey(),
+            route('bimbingan.show', $konsultasi->bimbingan_id),
+        ));
 
         return redirect()->route('dosen.konsultasi.show', $konsultasi)
             ->with('success', $data['aksi'] === 'tanggapi'

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\ActivityNotification;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -113,14 +114,56 @@ class Bimbingan extends Model
      */
     public static function tolakKadaluarsa(): int
     {
-        return static::where('status', self::MENUNGGU)
-            ->where('batas_respons_at', '<=', now())
+        $respondedAt = now();
+        $expired = static::query()
+            ->where('status', self::MENUNGGU)
+            ->where('batas_respons_at', '<=', $respondedAt)
+            ->get(['bimbingan_id', 'mahasiswa_id']);
+
+        if ($expired->isEmpty()) {
+            return 0;
+        }
+
+        $ids = $expired->modelKeys();
+        $updated = static::whereKey($ids)
+            ->where('status', self::MENUNGGU)
+            ->where('batas_respons_at', '<=', $respondedAt)
             ->update([
                 'status' => self::DITOLAK,
                 'ditolak_otomatis' => true,
                 'catatan_dosen' => 'Ditolak otomatis: dosen tidak merespons dalam '.(self::BATAS_RESPONS_JAM / 24).' hari.',
-                'responded_at' => now(),
-                'updated_at' => now(),
+                'responded_at' => $respondedAt,
+                'updated_at' => $respondedAt,
             ]);
+
+        if ($updated === 0) {
+            return 0;
+        }
+
+        $updatedBimbingan = static::query()
+            ->whereKey($ids)
+            ->where('ditolak_otomatis', true)
+            ->where('responded_at', $respondedAt)
+            ->get();
+
+        $notifyMahasiswa = static function () use ($updatedBimbingan): void {
+            foreach ($updatedBimbingan as $bimbingan) {
+                User::find($bimbingan->mahasiswa_id)?->notify(new ActivityNotification(
+                    'Bimbingan ditolak otomatis',
+                    "Permohonan bimbingan {$bimbingan->kode} ditolak otomatis karena dosen tidak merespons dalam 1 hari.",
+                    'bimbingan_status',
+                    (int) $bimbingan->getKey(),
+                    route('bimbingan.show', $bimbingan),
+                ));
+            }
+        };
+
+        if (DB::transactionLevel() > 0) {
+            DB::afterCommit($notifyMahasiswa);
+        } else {
+            $notifyMahasiswa();
+        }
+
+        return $updated;
     }
 }
