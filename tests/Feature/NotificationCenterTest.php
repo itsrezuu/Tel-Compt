@@ -134,6 +134,12 @@ test('new usulan and each admin status change notify the correct users', functio
     expect($secondAdmin->notifications()->count())->toBe(1);
     expect($admin->notifications()->first()->data['url'])->toContain('/admin-hima/usulan/');
 
+    $this->actingAs($admin)
+        ->get('/admin-hima/notifikasi')
+        ->assertOk()
+        ->assertSee('Pengajuan lomba baru')
+        ->assertSee('Kompetisi Baru');
+
     $processing = notificationTestUsulan($student, 'Sedang Diproses');
     $this->actingAs($admin)->patch('/admin-hima/usulan/'.$processing->usulan_id.'/proses')->assertRedirect();
     expect(notificationTestFind($student, 'usulan_status', (int) $processing->usulan_id)?->data['title'])

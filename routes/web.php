@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dosen\ProfilKeahlianController;
 use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
 use App\Http\Controllers\NotificationController;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -72,9 +74,19 @@ Route::prefix('dosen/notifikasi')->name('dosen.notifikasi.')->group(function () 
 // Login khusus development lokal
 if (app()->environment('local')) {
     Route::get('/dev/login/{role}', function (string $role) {
-        $user = \App\Models\User::where('role', $role)->orderBy('id')->firstOrFail();
-        \Illuminate\Support\Facades\Auth::login($user);
+        $query = User::where('role', $role);
 
-        return redirect($role === 'mahasiswa' ? '/bimbingan' : '/dosen/permintaan-bimbingan');
-    })->whereIn('role', ['mahasiswa', 'dosen']);
+        if (request()->filled('id')) {
+            $query->whereKey(request()->integer('id'));
+        }
+
+        $user = $query->orderBy('id')->firstOrFail();
+        Auth::login($user);
+
+        return redirect(match ($role) {
+            'mahasiswa' => route('bimbingan.index'),
+            'dosen' => route('dosen.bimbingan.index'),
+            'admin' => route('admin-hima.notifikasi.index'),
+        });
+    })->whereIn('role', ['mahasiswa', 'dosen', 'admin']);
 }

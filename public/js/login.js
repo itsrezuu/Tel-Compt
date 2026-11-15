@@ -2,7 +2,8 @@
   /* ================= KONFIGURASI ================= */
   const APP = window.TELCOMPT || {};
   const CONFIG = {
-    ALLOWED_DOMAIN: 'student.telkomuniversity.ac.id', // satu-satunya domain yang boleh masuk
+    ALLOWED_DOMAINS: APP.allowedDomains || ['student.telkomuniversity.ac.id', 'telkomuniversity.ac.id'],
+    DEFAULT_DOMAIN: APP.defaultDomain || 'student.telkomuniversity.ac.id',
     LOGIN_URL: APP.loginUrl,   // diisi dari Blade (route('login.store'))
     HOME_URL: APP.homeUrl || '' // tujuan tombol "Kembali ke beranda"
   };
@@ -37,8 +38,8 @@
   const ghost = $('#ghost'), typed = $('#typed'), suffix = $('#suffix');
   const toastEl = $('#toast');
 
-  suffix.textContent = '@' + CONFIG.ALLOWED_DOMAIN;
-  $('#deniedDomain').textContent = '@' + CONFIG.ALLOWED_DOMAIN;
+  suffix.textContent = '@' + CONFIG.DEFAULT_DOMAIN;
+  $('#deniedDomain').textContent = CONFIG.ALLOWED_DOMAINS.map(domain => '@' + domain).join(' atau ');
   document.querySelectorAll('.view').forEach(v => [...v.children].forEach((c, i) => c.style.setProperty('--i', i)));
 
   /* ================= VALIDASI AKUN ================= */
@@ -48,11 +49,11 @@
     if (v.includes('@')) {
       const parts = v.split('@');
       if (parts.length !== 2 || !parts[0] || !parts[1]) return { status: 'invalid' };
-      if (parts[1] !== CONFIG.ALLOWED_DOMAIN) return { status: 'denied', email: v };
+      if (!CONFIG.ALLOWED_DOMAINS.includes(parts[1])) return { status: 'denied', email: v };
       return { status: 'ok', email: v };
     }
     if (!/^[a-z0-9._-]+$/.test(v)) return { status: 'invalid' };
-    return { status: 'ok', email: v + '@' + CONFIG.ALLOWED_DOMAIN };
+    return { status: 'ok', email: v + '@' + CONFIG.DEFAULT_DOMAIN };
   }
 
   /* ================= STATE ERROR ================= */
@@ -85,7 +86,7 @@
   userEl.addEventListener('input', () => { updateGhost(); clearField(fUser); alertWrap.classList.remove('open'); clearField(fPass); });
   userEl.addEventListener('blur', () => {
     const acc = resolveAccount(userEl.value);
-    if (acc.status === 'denied') setFieldError(fUser, userMsg, 'Hanya akun @' + CONFIG.ALLOWED_DOMAIN + ' yang dapat masuk.');
+    if (acc.status === 'denied') setFieldError(fUser, userMsg, 'Gunakan email kampus dengan domain ' + CONFIG.ALLOWED_DOMAINS.map(domain => '@' + domain).join(' atau '));
   });
   passEl.addEventListener('input', () => { clearField(fPass); alertWrap.classList.remove('open'); });
 
@@ -186,7 +187,7 @@
     setBtn('success');
     confetti(btn);
     const target = res.redirect || '/';
-    toast('Berhasil masuk. Mengalihkan ke beranda…');
+    toast('Berhasil masuk. Mengalihkan ke halaman peran…');
     setTimeout(() => { location.href = target; }, 1400);
   });
 

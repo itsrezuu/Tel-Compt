@@ -129,7 +129,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-  window.TELCOMPT = { loginUrl: @json(route('login.store')), homeUrl: @json(url('/')) };
+  window.TELCOMPT = { loginUrl: @json(route('login.store')), homeUrl: @json(url('/')), allowedDomains: @json($allowedDomains), defaultDomain: @json($defaultDomain) };
 </script>
 <script src="{{ asset('js/login.js') }}"></script>
 </body>
