@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BimbinganController;
+use App\Http\Controllers\Dosen\RiwayatController;
 use App\Http\Controllers\KonsultasiController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,8 @@ Route::post('/bimbingan/{bimbingan}/konsultasi', [KonsultasiController::class, '
 Route::get('/dosen/permintaan-bimbingan', [BimbinganController::class, 'dosenIndex'])->name('dosen.bimbingan.index');
 Route::get('/dosen/permintaan-bimbingan/{bimbingan}', [BimbinganController::class, 'dosenShow'])->whereNumber('bimbingan')->name('dosen.bimbingan.show');
 Route::patch('/dosen/permintaan-bimbingan/{bimbingan}', [BimbinganController::class, 'dosenRespond'])->whereNumber('bimbingan')->name('dosen.bimbingan.respond');
+
+Route::get('/dosen/riwayat', [RiwayatController::class, 'index'])->name('dosen.riwayat');
 
 // Dosen: permintaan konsultasi dari mahasiswa bimbingannya
 Route::get('/dosen/permintaan-konsultasi', [KonsultasiController::class, 'dosenIndex'])->name('dosen.konsultasi.index');
