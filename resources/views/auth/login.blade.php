@@ -45,8 +45,7 @@
         <span class="word hl" style="--w:5" aria-hidden="true">prestasi.</span>
       </h2>
       <p class="lead">Temukan lomba terkurasi, ajukan pendampingan dan dokumentasikan pengalaman Anda.</p>
-      <p class="roles"><span class="r">Mahasiswa</span><span class="sep">·</span><span class="r">Admin HIMA</span><span class="sep">·</span><span class="r">Dosen</span><span class="sep">·</span><span class="r">Kaprodi</span></p>
-      <p class="legal">Data contoh fiktif · Rancangan aplikasi web</p>
+      <p class="legal">Informasi lomba dan pendampingan prestasi di Telkom University.</p>
     </section>
   </aside>
 
@@ -73,9 +72,9 @@
 
           <form id="form" novalidate>
             <div class="field" id="fUser">
-              <label for="username">Nama pengguna akun kampus</label>
+              <label for="username">Email</label>
               <div class="control">
-                <input id="username" name="username" type="text" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="mis. nadiapramesti" aria-describedby="userMsg">
+                <input id="username" name="username" type="text" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Masukkan alamat email" aria-describedby="userMsg">
                 <div class="ghost" id="ghost" aria-hidden="true"><span class="typed" id="typed"></span><span class="suffix" id="suffix"></span></div>
               </div>
               <p class="msg err" id="userMsg"></p>
@@ -84,7 +83,7 @@
             <div class="field" id="fPass">
               <label for="password">Kata sandi</label>
               <div class="control">
-                <input id="password" name="password" type="password" autocomplete="current-password" aria-describedby="passMsg capsNote">
+                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi" aria-describedby="passMsg capsNote">
                 <button class="toggle" id="toggle" type="button" aria-label="Tampilkan kata sandi" aria-pressed="false">
                   <svg class="on" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
                   <svg class="off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>
@@ -110,18 +109,18 @@
             <svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
           </div>
           <h1 tabindex="-1" id="deniedTitle">Akses ditolak</h1>
-          <p class="sub">Akun Anda tidak memiliki izin untuk masuk. TEL-COMPT hanya dapat diakses dengan akun mahasiswa Telkom University.</p>
+          <p class="sub">Akun ini belum dapat mengakses TEL-COMPT. Akses tersedia bagi Mahasiswa, Admin HIMA, Dosen, dan Kaprodi sesuai peran akun.</p>
           <div class="alert static" role="alert">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
             <strong>Izin tidak tersedia</strong>
-            <p>Hanya akun berdomain <b id="deniedDomain"></b> yang dapat masuk. Akun yang dicoba: <span class="mono" id="deniedEmail"></span></p>
+            <p>Akses tersedia bagi Mahasiswa, Admin HIMA, Dosen, dan Kaprodi dengan email berdomain <b id="deniedDomain"></b>. Akun yang dicoba: <span class="mono" id="deniedEmail"></span></p>
           </div>
           <button class="btn btn-primary" id="goHome" type="button"><span class="lbl">Kembali ke beranda</span></button>
           <button class="btn btn-secondary" id="otherAccount" type="button"><span class="lbl">Gunakan akun lain</span></button>
         </div>
 
       </section>
-      <p class="foot">Data contoh fiktif · Tidak menyatakan integrasi autentikasi tertentu.</p>
+      <p class="foot">Masuk menggunakan akun TEL-COMPT yang terdaftar.</p>
     </div>
   </main>
 </div>
