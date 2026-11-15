@@ -4,7 +4,7 @@
 @section('page_title', 'Katalog Lomba')
 
 @push('styles')
-    @vite('resources/css/katalog-lomba.css')
+    <link rel="stylesheet" href="{{ asset('css/katalog-lomba.css') }}?v={{ filemtime(public_path('css/katalog-lomba.css')) }}">
 @endpush
 
 @section('content')
