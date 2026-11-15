@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\UsulanLomba;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\Request;
 
 class UsulanLombaController extends Controller
@@ -27,22 +29,31 @@ class UsulanLombaController extends Controller
     {
         $data = $request->validate([
             'judul_lomba' => ['required', 'string', 'max:255'],
-            'link_resmi'  => ['required', 'url', 'max:2048'],
-            'deskripsi'   => ['required', 'string', 'max:5000'],
+            'link_resmi' => ['required', 'url', 'max:2048'],
+            'deskripsi' => ['required', 'string', 'max:5000'],
         ], [
             'judul_lomba.required' => 'Nama lomba wajib diisi.',
-            'link_resmi.required'  => 'Tautan resmi wajib diisi.',
-            'link_resmi.url'       => 'Tautan harus diawali https:// atau http://.',
-            'deskripsi.required'   => 'Deskripsi lomba wajib diisi.',
+            'link_resmi.required' => 'Tautan resmi wajib diisi.',
+            'link_resmi.url' => 'Tautan harus diawali https:// atau http://.',
+            'deskripsi.required' => 'Deskripsi lomba wajib diisi.',
         ]);
 
         $usulan = UsulanLomba::create($data + [
             'pengaju_id' => auth()->id(), // null jika belum ada login
-            'status'     => 'menunggu',
+            'status' => 'menunggu',
         ]);
 
-        return redirect()->route('mahasiswa.usulan.create')
-            ->with('usulan_baru', $usulan->usulan_id);
+        foreach (User::query()->where('role', 'admin')->get() as $admin) {
+            $admin->notify(new ActivityNotification(
+                'Pengajuan lomba baru',
+                "{$usulan->judul_lomba} menunggu ditinjau.",
+                'usulan_dibuat',
+                (int) $usulan->usulan_id,
+                route('admin.usulan.show', $usulan),
+            ));
+        }
+
+        return redirect()->route('mahasiswa.usulan.create')->with('usulan_baru', $usulan->usulan_id);
     }
 
     // Riwayat usulan milik mahasiswa

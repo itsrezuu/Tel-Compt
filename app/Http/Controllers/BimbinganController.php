@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bimbingan;
 use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -106,6 +107,13 @@ class BimbinganController extends Controller
         });
 
         $dosen = User::find($baru->dosen_id);
+        $dosen?->notify(new ActivityNotification(
+            'Permintaan bimbingan baru',
+            "{$baru->nama_tim} mengajukan bimbingan untuk topik {$baru->topik_judul}.",
+            'bimbingan_dibuat',
+            (int) $baru->getKey(),
+            route('dosen.bimbingan.show', $baru),
+        ));
 
         return redirect()->route('bimbingan.index')->with('terkirim', [
             'judul' => 'Permintaan terkirim · '.$baru->kode,
@@ -198,6 +206,15 @@ class BimbinganController extends Controller
             return redirect()->route('dosen.bimbingan.show', $bimbingan)
                 ->with('error', 'Pengajuan sudah diproses atau melewati batas respons 1 hari.');
         }
+
+        $statusText = $data['aksi'] === 'setuju' ? 'disetujui' : 'ditolak';
+        User::find($bimbingan->mahasiswa_id)?->notify(new ActivityNotification(
+            'Keputusan bimbingan',
+            "Permohonan bimbingan {$bimbingan->kode} telah {$statusText}. Catatan: {$data['catatan']}",
+            'bimbingan_status',
+            (int) $bimbingan->getKey(),
+            route('bimbingan.show', $bimbingan),
+        ));
 
         return redirect()->route('dosen.bimbingan.show', $bimbingan)
             ->with('success', $data['aksi'] === 'setuju'

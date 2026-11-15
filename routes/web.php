@@ -1,11 +1,11 @@
-
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AdminHima\LombaController;
-use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dosen\ProfilKeahlianController;
+use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
+use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -51,6 +51,25 @@ Route::prefix('mahasiswa')
 
 require __DIR__.'/bimbingan.php';
 
+Route::prefix('notifikasi')->name('mahasiswa.notifikasi.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::post('/read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
+    Route::post('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
+});
+
+Route::prefix('admin-hima/notifikasi')->name('admin-hima.notifikasi.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::post('/read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
+    Route::post('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
+});
+
+Route::prefix('dosen/notifikasi')->name('dosen.notifikasi.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::post('/read-all', [NotificationController::class, 'markAllRead'])->name('read-all');
+    Route::post('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
+});
+
+// Login khusus development lokal
 if (app()->environment('local')) {
     Route::get('/dev/login/{role}', function (string $role) {
         $user = \App\Models\User::where('role', $role)->orderBy('id')->firstOrFail();
