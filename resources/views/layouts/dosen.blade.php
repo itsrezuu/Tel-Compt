@@ -546,14 +546,10 @@
             <div class="meta">
                 {{ $currentUser->program_studi ?? 'Dosen' }} ·
 
-                @if (\Illuminate\Support\Facades\Route::has('logout'))
-                    <form method="POST" action="{{ route('logout') }}" style="display:inline">
-                        @csrf
-                        <button type="submit" class="logout-btn">Keluar</button>
-                    </form>
-                @else
-                    <a href="{{ url('/logout') }}" class="logout-btn">Keluar</a>
-                @endif
+                <form method="POST" action="{{ route('logout') }}" style="display:inline">
+                    @csrf
+                    <button type="submit" class="logout-btn" onclick="return confirm('Yakin ingin keluar?')">Keluar</button>
+                </form>
             </div>
         </div>
     </div>

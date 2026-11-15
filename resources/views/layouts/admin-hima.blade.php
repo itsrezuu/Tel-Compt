@@ -327,9 +327,9 @@
         <div class="name">Pengelola HIMA</div>
         <div class="meta">
             Sistem Informasi ·
-            <form method="POST" action="{{ \Illuminate\Support\Facades\Route::has('logout') ? route('logout') : url('/logout') }}" style="display:inline">
+            <form method="POST" action="{{ route('logout') }}" style="display:inline">
                 @csrf
-                <button type="submit" class="logout-btn">Keluar</button>
+                <button type="submit" class="logout-btn" onclick="return confirm('Yakin ingin keluar?')">Keluar</button>
             </form>
         </div>
     </div>

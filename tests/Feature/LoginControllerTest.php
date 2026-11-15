@@ -19,12 +19,34 @@ it('signs in demo accounts and redirects each role to its own area', function (s
         ->assertJsonPath('redirect', url($path));
 
     $this->assertAuthenticatedAs($user);
-    $this->get($path)->assertOk();
+    $page = $this->get($path)->assertOk();
+    $page->assertSee('method="POST"', false)
+        ->assertSee('action="'.route('logout').'"', false)
+        ->assertSee('onclick="return confirm(\'Yakin ingin keluar?\')"', false);
     expect($user->role)->toBe($role);
 })->with([
     'Mahasiswa' => ['nadia@student.telkomuniversity.ac.id', 'mahasiswa', '/bimbingan'],
     'Admin HIMA' => ['adminhima@student.telkomuniversity.ac.id', 'admin', '/admin-hima/notifikasi'],
     'Dosen' => ['dimas.arunika@telkomuniversity.ac.id', 'dosen', '/dosen/permintaan-bimbingan'],
+]);
+
+it('invalidates the session and rotates the CSRF token when each role logs out', function (string $email) {
+    $this->seed(UserDemoSeeder::class);
+    $user = User::where('email', $email)->firstOrFail();
+
+    $this->actingAs($user)->withSession(['logout_probe' => 'present']);
+    $previousToken = $this->app['session.store']->token();
+
+    $response = $this->post('/logout');
+    $response->assertRedirect(route('login'))
+        ->assertSessionMissing('logout_probe');
+    $this->assertGuest();
+
+    expect($this->app['session.store']->token())->not->toBe($previousToken);
+})->with([
+    'Mahasiswa' => ['nadia@student.telkomuniversity.ac.id'],
+    'Admin HIMA' => ['adminhima@student.telkomuniversity.ac.id'],
+    'Dosen' => ['dimas.arunika@telkomuniversity.ac.id'],
 ]);
 
 it('rejects login attempts from email domains outside the campus accounts', function () {
