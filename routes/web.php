@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminHima\LombaController;
+use App\Http\Controllers\AdminHima\VerifikasiPrestasiController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dosen\ProfilKeahlianController;
 use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
@@ -35,6 +36,17 @@ Route::prefix('admin-hima')->name('admin.lomba.')->group(function () {
 });
 
 require __DIR__.'/usulan.php';
+
+Route::prefix('admin-hima/verifikasi')->name('admin.verifikasi.')->middleware('auth')->group(function () {
+    Route::get('/', [VerifikasiPrestasiController::class, 'index'])->name('index');
+    Route::get('/{pengajuan}', [VerifikasiPrestasiController::class, 'show'])->whereNumber('pengajuan')->name('show');
+    Route::get('/{pengajuan}/berkas/{jenis}', [VerifikasiPrestasiController::class, 'download'])
+        ->whereNumber('pengajuan')->name('berkas');
+    Route::patch('/{pengajuan}/setujui', [VerifikasiPrestasiController::class, 'setujui'])
+        ->whereNumber('pengajuan')->name('setujui');
+    Route::patch('/{pengajuan}/tolak', [VerifikasiPrestasiController::class, 'tolak'])
+        ->whereNumber('pengajuan')->name('tolak');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/prestasi-arsip', [MahasiswaPrestasiController::class, 'create'])

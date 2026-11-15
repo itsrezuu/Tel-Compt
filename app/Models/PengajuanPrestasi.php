@@ -9,6 +9,18 @@ class PengajuanPrestasi extends Model
 {
     public const STATUS_MENUNGGU_VERIFIKASI = 'menunggu_verifikasi';
 
+    public const STATUS_DISETUJUI = 'disetujui';
+
+    public const STATUS_DITOLAK = 'ditolak';
+
+    public const STATUS_ARSIP_BELUM_DITINJAU = 'belum_ditinjau';
+
+    public const STATUS_ARSIP_MENUNGGU = 'menunggu';
+
+    public const STATUS_ARSIP_DISETUJUI = 'disetujui';
+
+    public const STATUS_ARSIP_DITOLAK = 'ditolak';
+
     protected $table = 'pengajuan_prestasi';
 
     protected $primaryKey = 'pengajuan_id';
@@ -27,11 +39,26 @@ class PengajuanPrestasi extends Model
         'dokumen_pengalaman_path',
         'persetujuan_publikasi',
         'status',
+        'status_arsip',
+        'bukti_sesuai',
+        'keluaran_lomba_tersedia',
+        'pengalaman_layak',
+        'catatan_keputusan',
+        'publikasikan_prestasi',
+        'publikasikan_arsip',
+        'ditinjau_oleh',
+        'ditinjau_pada',
     ];
 
     protected $casts = [
         'tanggal_pencapaian' => 'date',
         'persetujuan_publikasi' => 'boolean',
+        'bukti_sesuai' => 'boolean',
+        'keluaran_lomba_tersedia' => 'boolean',
+        'pengalaman_layak' => 'boolean',
+        'publikasikan_prestasi' => 'boolean',
+        'publikasikan_arsip' => 'boolean',
+        'ditinjau_pada' => 'datetime',
     ];
 
     public function mahasiswa(): BelongsTo
