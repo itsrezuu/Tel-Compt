@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminHima\LombaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dosen\ProfilKeahlianController;
 use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
+use App\Http\Controllers\Mahasiswa\PrestasiController as MahasiswaPrestasiController;
 use App\Http\Controllers\NotificationController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,18 @@ Route::prefix('admin-hima')->name('admin.lomba.')->group(function () {
 });
 
 require __DIR__.'/usulan.php';
+
+Route::middleware('auth')->group(function () {
+    Route::get('/prestasi-arsip', [MahasiswaPrestasiController::class, 'create'])
+        ->name('mahasiswa.prestasi.create');
+    Route::post('/prestasi-arsip', [MahasiswaPrestasiController::class, 'store'])
+        ->name('mahasiswa.prestasi.store');
+    Route::get('/riwayat-pengajuan', [MahasiswaPrestasiController::class, 'index'])
+        ->name('mahasiswa.prestasi.index');
+    Route::get('/riwayat-pengajuan/{pengajuan}/berkas/{jenis}', [MahasiswaPrestasiController::class, 'download'])
+        ->whereNumber('pengajuan')
+        ->name('mahasiswa.prestasi.berkas');
+});
 
 Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::get('/profil-keahlian', [ProfilKeahlianController::class, 'index'])

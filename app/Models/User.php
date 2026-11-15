@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -51,5 +52,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Lomba::class, 'lomba_bookmarks', 'user_id', 'lomba_id')
             ->withTimestamps();
+    }
+
+    public function prestasiDiajukan(): HasMany
+    {
+        return $this->hasMany(PengajuanPrestasi::class, 'mahasiswa_id', 'id');
     }
 }
