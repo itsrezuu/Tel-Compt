@@ -2,6 +2,7 @@
 
 use App\Models\PengajuanPrestasi;
 use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -113,6 +114,42 @@ it('stores a mahasiswa submission, its private files, consent, and initial verif
         ->assertSee('Menunggu Verifikasi');
 });
 
+it('notifies every Admin HIMA when a student submits a prestige and archive record', function (): void {
+    Storage::fake('local');
+    $mahasiswa = scrum30User();
+    $admins = [scrum30User('admin'), scrum30User('admin')];
+    $lecturer = scrum30User('dosen');
+
+    $this->actingAs($mahasiswa)
+        ->post('/prestasi-arsip', scrum30Payload())
+        ->assertRedirect(route('mahasiswa.prestasi.create'))
+        ->assertSessionHas('pengajuan_baru');
+
+    $pengajuan = PengajuanPrestasi::query()->firstOrFail();
+    $this->assertDatabaseHas('pengajuan_prestasi', [
+        'pengajuan_id' => $pengajuan->getKey(),
+        'mahasiswa_id' => $mahasiswa->getKey(),
+        'lomba' => 'Kompetisi Desain Aksesibel 2025',
+    ]);
+
+    $expectedData = [
+        'title' => 'Pengajuan prestasi baru',
+        'message' => 'Kompetisi Desain Aksesibel 2025 menunggu verifikasi.',
+        'type' => 'prestasi_dibuat',
+        'related_id' => (int) $pengajuan->getKey(),
+        'url' => route('admin.verifikasi.show', $pengajuan),
+    ];
+
+    foreach ($admins as $admin) {
+        $notifications = $admin->notifications()->where('type', ActivityNotification::class)->get();
+        expect($notifications)->toHaveCount(1);
+        expect($notifications->first()->data)->toBe($expectedData);
+    }
+
+    expect($lecturer->notifications()->count())->toBe(0);
+    expect($mahasiswa->notifications()->count())->toBe(0);
+});
+
 it('accepts a submission without the optional experience document', function (): void {
     Storage::fake('local');
     $mahasiswa = scrum30User();
@@ -199,6 +236,21 @@ it('shows only the mahasiswa own submissions and files', function (): void {
 
     $this->get('/riwayat-pengajuan/'.$milikMahasiswaLain->getKey().'/berkas/bukti-pendukung')
         ->assertNotFound();
+});
+
+it('shows consistent badge colors for every submission status', function (): void {
+    $mahasiswa = scrum30User();
+
+    scrum30Record($mahasiswa, ['status' => 'menunggu_verifikasi']);
+    scrum30Record($mahasiswa, ['status' => 'disetujui']);
+    scrum30Record($mahasiswa, ['status' => 'selesai']);
+    scrum30Record($mahasiswa, ['status' => 'ditolak']);
+
+    $response = $this->actingAs($mahasiswa)->get('/riwayat-pengajuan')->assertOk();
+
+    expect(substr_count($response->getContent(), 'class="prestasi-badge waiting"'))->toBe(1);
+    expect(substr_count($response->getContent(), 'class="prestasi-badge success"'))->toBe(2);
+    expect(substr_count($response->getContent(), 'class="prestasi-badge rejected"'))->toBe(1);
 });
 
 it('escapes student supplied archive text in the history page', function (): void {

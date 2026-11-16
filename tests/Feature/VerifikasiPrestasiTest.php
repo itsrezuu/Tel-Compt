@@ -53,6 +53,37 @@ it('lists, searches, filters, and opens applications only for Admin HIMA', funct
     $this->get('/admin-hima/verifikasi?status=arsip_menunggu')->assertOk()->assertSee($approved->nomor_pengajuan);
 });
 
+it('shows green, yellow, and red status badges on the verification detail page', function (): void {
+    $student = scrum31User('mahasiswa');
+    $admin = scrum31User('admin');
+    $waiting = scrum31Pengajuan($student, ['status' => 'menunggu_verifikasi']);
+    $approved = scrum31Pengajuan($student, ['status' => 'disetujui']);
+    $finished = scrum31Pengajuan($student, ['status' => 'selesai']);
+    $rejected = scrum31Pengajuan($student, ['status' => 'ditolak']);
+
+    $this->actingAs($admin)->get('/admin-hima/verifikasi/'.$approved->getKey())
+        ->assertOk()->assertSee('<span class="rv-status success">', false);
+    $this->get('/admin-hima/verifikasi/'.$finished->getKey())
+        ->assertOk()->assertSee('<span class="rv-status success">', false);
+    $this->get('/admin-hima/verifikasi/'.$waiting->getKey())
+        ->assertOk()->assertSee('<span class="rv-status waiting">', false);
+    $this->get('/admin-hima/verifikasi/'.$rejected->getKey())
+        ->assertOk()->assertSee('<span class="rv-status rejected">', false);
+});
+
+it('renders one decision note field for both approval and rejection actions', function (): void {
+    $student = scrum31User('mahasiswa');
+    $record = scrum31Pengajuan($student);
+
+    $response = $this->actingAs(scrum31User('admin'))
+        ->get('/admin-hima/verifikasi/'.$record->getKey())
+        ->assertOk()
+        ->assertSee('formaction="'.route('admin.verifikasi.tolak', $record).'"', false)
+        ->assertSee('formnovalidate', false)
+        ->assertDontSee('<label class="rv-field">Alasan penolakan', false);
+
+    expect(substr_count($response->getContent(), 'name="catatan_keputusan"'))->toBe(1);
+});
 it('serves uploaded evidence only through an authorized private route', function (): void {
     Storage::fake('local');
     $student = scrum31User('mahasiswa');
@@ -71,11 +102,12 @@ it('approves the achievement, keeps an unapproved archive pending, and honors st
     $record = scrum31Pengajuan($student);
 
     $this->actingAs($admin)->patch('/admin-hima/verifikasi/'.$record->getKey().'/setujui', [
-        'bukti_sesuai' => '1', 'keluaran_lomba_tersedia' => '1', 'publikasikan_prestasi' => '1',
+        'bukti_sesuai' => '1', 'keluaran_lomba_tersedia' => '1', 'publikasikan_prestasi' => '1', 'catatan_keputusan' => 'Catatan persetujuan dari textarea bersama.',
     ])->assertRedirect(route('admin.verifikasi.show', $record));
 
     expect($record->fresh()->status)->toBe('disetujui');
     expect($record->fresh()->status_arsip)->toBe('menunggu');
+    expect($record->fresh()->catatan_keputusan)->toBe('Catatan persetujuan dari textarea bersama.');
     expect($record->fresh()->publikasikan_prestasi)->toBeTrue();
     expect($record->fresh()->publikasikan_arsip)->toBeFalse();
     expect($student->notifications()->where('type', ActivityNotification::class)->count())->toBe(1);
@@ -114,6 +146,7 @@ it('rejects an archive separately without reversing an approved achievement', fu
 
     expect($record->fresh()->status)->toBe('disetujui');
     expect($record->fresh()->status_arsip)->toBe('ditolak');
+    expect($record->fresh()->catatan_keputusan)->toBe('Arsip memuat data pribadi peserta.');
     expect($record->fresh()->publikasikan_prestasi)->toBeTrue();
     expect($record->fresh()->publikasikan_arsip)->toBeFalse();
     expect($student->notifications()->where('type', ActivityNotification::class)->count())->toBe(1);
@@ -130,6 +163,7 @@ it('requires decision evidence and a rejection reason and notifies the student',
     $this->patch('/admin-hima/verifikasi/'.$record->getKey().'/tolak', ['catatan_keputusan' => 'Bukti hasil tidak cocok.'])->assertRedirect();
 
     expect($record->fresh()->status)->toBe('ditolak');
+    expect($record->fresh()->catatan_keputusan)->toBe('Bukti hasil tidak cocok.');
     expect($record->fresh()->publikasikan_prestasi)->toBeFalse();
     expect($student->notifications()->where('type', ActivityNotification::class)->firstOrFail()->data['type'])->toBe('prestasi_status');
 });

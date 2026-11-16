@@ -16,13 +16,20 @@
 </div>
 
 @forelse ($pengajuans as $pengajuan)
+    @php
+        $statusBadgeClass = match ($pengajuan->status) {
+            'disetujui', 'selesai' => 'success',
+            'ditolak' => 'rejected',
+            default => 'waiting',
+        };
+    @endphp
     <article class="prestasi-record">
         <div class="prestasi-record-header">
             <div>
                 <h3>{{ $pengajuan->nomor_pengajuan }} · {{ $pengajuan->judul_arsip }}</h3>
                 <p>Dikirim {{ $pengajuan->created_at->locale('id')->translatedFormat('d M Y') }}</p>
             </div>
-            <span class="prestasi-badge">{{ $pengajuan->status_label }}</span>
+            <span class="prestasi-badge {{ $statusBadgeClass }}">{{ $pengajuan->status_label }}</span>
         </div>
 
         <dl class="prestasi-detail">

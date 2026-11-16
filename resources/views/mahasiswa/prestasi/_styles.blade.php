@@ -31,6 +31,9 @@
     .prestasi-banner .title { font-size: 14px; font-weight: 600; }
     .prestasi-banner .desc { color: var(--muted); font-size: 13px; margin-top: 2px; }
     .prestasi-badge { background: #fff6dd; border-radius: 6px; color: #a15c00; display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 9px; }
+    .prestasi-badge.waiting { background: #fff6dd; color: #a15c00; }
+    .prestasi-badge.success { background: #e8f7ee; color: #14803f; }
+    .prestasi-badge.rejected { background: #fdecec; color: #b42318; }
     .prestasi-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
     .prestasi-link { color: var(--primary); font-size: 13px; font-weight: 600; }
     .prestasi-link:hover { text-decoration: underline; }

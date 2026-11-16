@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanPrestasi;
 use App\Models\User;
+use App\Notifications\ActivityNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -108,6 +109,16 @@ class PrestasiController extends Controller
             }
 
             throw $exception;
+        }
+
+        foreach (User::query()->where('role', 'admin')->get() as $admin) {
+            $admin->notify(new ActivityNotification(
+                'Pengajuan prestasi baru',
+                "{$pengajuan->lomba} menunggu verifikasi.",
+                'prestasi_dibuat',
+                (int) $pengajuan->getKey(),
+                route('admin.verifikasi.show', $pengajuan),
+            ));
         }
 
         return redirect()
