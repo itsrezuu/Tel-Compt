@@ -1,4 +1,4 @@
 @php
-    $labelStatus = ['menunggu' => 'Menunggu', 'disetujui' => 'Disetujui', 'ditanggapi' => 'Ditanggapi', 'ditolak' => 'Ditolak'];
+    $labelStatus = ['menunggu' => 'Menunggu', 'disetujui' => 'Disetujui', 'ditanggapi' => 'Ditanggapi', 'ditolak' => 'Ditolak', 'selesai' => 'Selesai'];
 @endphp
 <span class="bm-badge {{ $status }}">{{ $labelStatus[$status] ?? ucfirst($status) }}</span>

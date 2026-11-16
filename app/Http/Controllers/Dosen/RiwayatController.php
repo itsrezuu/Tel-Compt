@@ -69,9 +69,9 @@ class RiwayatController extends Controller
     {
         $bimbingan = DB::table('bimbingan as b')
             ->join('users as m', 'm.id', '=', 'b.mahasiswa_id')
-            ->selectRaw("'bimbingan' as jenis, b.bimbingan_id as id, b.topik_judul as permintaan, m.name as mahasiswa, b.nama_tim as nama_tim, b.responded_at as selesai, b.status as status, b.catatan_dosen as catatan")
+            ->selectRaw("'bimbingan' as jenis, b.bimbingan_id as id, b.topik_judul as permintaan, m.name as mahasiswa, b.nama_tim as nama_tim, CASE WHEN b.status = ? THEN b.updated_at ELSE b.responded_at END as selesai, b.status as status, b.catatan_dosen as catatan", [Bimbingan::SELESAI])
             ->where('b.dosen_id', $dosenId)
-            ->whereIn('b.status', [Bimbingan::DISETUJUI, Bimbingan::DITOLAK])
+            ->whereIn('b.status', [Bimbingan::DISETUJUI, Bimbingan::DITOLAK, Bimbingan::SELESAI])
             ->whereNotNull('b.responded_at')
             ->whereNotNull('b.catatan_dosen')
             ->where('b.catatan_dosen', '<>', '');

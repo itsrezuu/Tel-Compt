@@ -5,6 +5,7 @@ use App\Models\Konsultasi;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -67,6 +68,18 @@ test('lecturer history shows only completed requests assigned to the signed in l
         Carbon::parse('2026-09-08 09:00:00'),
         'Alasan penolakan September.',
     );
+    $completed = dosenRiwayatTestBimbingan(
+        $student,
+        $lecturer,
+        'Topik selesai',
+        'Tim selesai',
+        Bimbingan::SELESAI,
+        Carbon::parse('2026-10-05 09:00:00'),
+        'Catatan keputusan selesai.',
+    );
+    DB::table('bimbingan')
+        ->where('bimbingan_id', $completed->getKey())
+        ->update(['updated_at' => Carbon::parse('2026-10-11 09:00:00')]);
     dosenRiwayatTestBimbingan(
         $student,
         $lecturer,
@@ -137,7 +150,9 @@ test('lecturer history shows only completed requests assigned to the signed in l
         ->assertOk()
         ->assertSee('K-001')
         ->assertSee('B-001')
-        ->assertSee('dari 7 data')
+        ->assertSee('Topik selesai')
+        ->assertSee('Selesai')
+        ->assertSee('dari 8 data')
         ->assertSee('Berikutnya')
         ->assertSee('Tanggapan terpilih')
         ->assertSee('Catatan tanggapan Oktober.')
@@ -158,6 +173,12 @@ test('lecturer history shows only completed requests assigned to the signed in l
         ->assertSee('Topik September')
         ->assertDontSee('K-001')
         ->assertDontSee('B-001');
+
+    $this->get('/dosen/riwayat?jenis=bimbingan&periode=2026-10')
+        ->assertOk()
+        ->assertSee('Topik selesai')
+        ->assertSee('11 Okt 2026')
+        ->assertDontSee('Topik September');
 
     $this->get('/dosen/riwayat?jenis=konsultasi&periode=2026-09')
         ->assertOk()

@@ -38,8 +38,8 @@
         <div class="bm-banner warn">
             <div>
                 <p style="margin:0;color:inherit">
-                    Kamu masih punya pengajuan yang aktif (menunggu atau disetujui), jadi belum bisa mengajukan ke dosen lain.
-                    Kamu bisa mengajukan lagi setelah pengajuan ditolak.
+                    Kamu masih punya pengajuan Menunggu atau bimbingan Disetujui yang belum ditandai selesai, jadi belum bisa mengajukan lagi.
+                    Kamu bisa mengajukan lagi setelah pengajuan ditolak atau dosen menandai bimbingan selesai.
                 </p>
             </div>
         </div>

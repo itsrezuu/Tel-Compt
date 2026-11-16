@@ -52,7 +52,7 @@
 
     .bm-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
     .bm-badge.menunggu { background: #fffbeb; color: #9a5800; }
-    .bm-badge.disetujui, .bm-badge.ditanggapi { background: #e8f7ee; color: #14803f; }
+    .bm-badge.disetujui, .bm-badge.ditanggapi, .bm-badge.selesai { background: #e8f7ee; color: #14803f; }
     .bm-badge.ditolak { background: #fdecec; color: #a62121; }
 
     .bm-banner { display: flex; gap: 12px; padding: 16px 20px; border-radius: 10px; }

@@ -19,7 +19,9 @@ class Bimbingan extends Model
 
     public const DITOLAK = 'ditolak';
 
-    public const STATUSES = [self::MENUNGGU, self::DISETUJUI, self::DITOLAK];
+    public const SELESAI = 'selesai';
+
+    public const STATUSES = [self::MENUNGGU, self::DISETUJUI, self::DITOLAK, self::SELESAI];
 
     /** Batas waktu dosen merespons (jam). */
     public const BATAS_RESPONS_JAM = 24;

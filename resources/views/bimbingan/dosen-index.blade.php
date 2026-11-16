@@ -10,7 +10,7 @@
 @endpush
 
 @php
-    $tabs = ['menunggu' => 'Menunggu', 'disetujui' => 'Disetujui', 'ditolak' => 'Ditolak'];
+    $tabs = ['menunggu' => 'Menunggu', 'disetujui' => 'Disetujui', 'selesai' => 'Selesai', 'ditolak' => 'Ditolak'];
 @endphp
 
 @section('content')

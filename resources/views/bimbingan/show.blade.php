@@ -37,7 +37,7 @@
                 {{ $item->ditolak_otomatis ? 'Ditolak otomatis oleh sistem' : $item->dosen->name }}
                 · {{ Bimbingan::formatWaktu($item->responded_at, true) }}
             </p>
-            @if ($item->status === 'ditolak')
+            @if (in_array($item->status, ['ditolak', 'selesai'], true))
                 <p style="margin:14px 0 0"><a href="{{ route('bimbingan.create') }}" class="bm-link">Ajukan bimbingan baru →</a></p>
             @endif
         @endif

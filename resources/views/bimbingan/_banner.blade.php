@@ -11,6 +11,18 @@
             </p>
         </div>
     </div>
+@elseif ($status === 'selesai')
+    <div class="bm-banner ok">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        <div>
+            <strong>Bimbingan selesai</strong>
+            <p>
+                {{ $untuk === 'dosen'
+                    ? 'Proses bimbingan ini telah ditandai selesai. Mahasiswa dapat mengajukan bimbingan baru.'
+                    : 'Dosen telah menandai proses bimbingan ini selesai. Kamu bisa mengajukan bimbingan lagi, termasuk ke dosen lain.' }}
+            </p>
+        </div>
+    </div>
 @elseif ($status === 'ditolak')
     <div class="bm-banner bad">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>

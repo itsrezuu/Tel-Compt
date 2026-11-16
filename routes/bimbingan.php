@@ -21,6 +21,7 @@ Route::post('/bimbingan/{bimbingan}/konsultasi', [KonsultasiController::class, '
 Route::get('/dosen/permintaan-bimbingan', [BimbinganController::class, 'dosenIndex'])->name('dosen.bimbingan.index');
 Route::get('/dosen/permintaan-bimbingan/{bimbingan}', [BimbinganController::class, 'dosenShow'])->whereNumber('bimbingan')->name('dosen.bimbingan.show');
 Route::patch('/dosen/permintaan-bimbingan/{bimbingan}', [BimbinganController::class, 'dosenRespond'])->whereNumber('bimbingan')->name('dosen.bimbingan.respond');
+Route::patch('/dosen/permintaan-bimbingan/{bimbingan}/selesai', [BimbinganController::class, 'dosenSelesaikan'])->whereNumber('bimbingan')->name('dosen.bimbingan.selesai');
 
 Route::get('/dosen/riwayat', [RiwayatController::class, 'index'])->name('dosen.riwayat');
 

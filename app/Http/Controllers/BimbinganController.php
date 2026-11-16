@@ -58,7 +58,7 @@ class BimbinganController extends Controller
 
         if ($this->punyaPengajuanAktif($request->user()->id)) {
             return redirect()->route('bimbingan.index')
-                ->with('error', 'Kamu masih punya pengajuan bimbingan yang aktif. Tunggu sampai ditolak sebelum mengajukan lagi.');
+                ->with('error', 'Kamu masih punya pengajuan bimbingan yang aktif. Tunggu sampai ditolak atau bimbingan yang disetujui ditandai selesai sebelum mengajukan lagi.');
         }
 
         $user = $request->user();
@@ -95,7 +95,7 @@ class BimbinganController extends Controller
 
             if ($this->punyaPengajuanAktif($user->id)) {
                 throw ValidationException::withMessages([
-                    'dosen_id' => 'Kamu masih punya pengajuan bimbingan yang aktif. Tunggu sampai ditolak sebelum mengajukan lagi.',
+                    'dosen_id' => 'Kamu masih punya pengajuan bimbingan yang aktif. Tunggu sampai ditolak atau bimbingan yang disetujui ditandai selesai sebelum mengajukan lagi.',
                 ]);
             }
 
@@ -220,6 +220,37 @@ class BimbinganController extends Controller
             ->with('success', $data['aksi'] === 'setuju'
                 ? 'Pengajuan bimbingan disetujui.'
                 : 'Pengajuan bimbingan ditolak. Alasan sudah tercatat.');
+    }
+
+    // Dosen: tandai proses bimbingan yang disetujui telah selesai.
+    public function dosenSelesaikan(Request $request, Bimbingan $bimbingan): RedirectResponse
+    {
+        $this->pastikanRole($request, ['dosen', 'kaprodi']);
+        $this->pastikanPemilik($request, $bimbingan);
+
+        $berhasil = Bimbingan::whereKey($bimbingan->getKey())
+            ->where('dosen_id', $request->user()->id)
+            ->where('status', Bimbingan::DISETUJUI)
+            ->update([
+                'status' => Bimbingan::SELESAI,
+                'updated_at' => now(),
+            ]);
+
+        if (! $berhasil) {
+            return redirect()->route('dosen.bimbingan.show', $bimbingan)
+                ->with('error', 'Bimbingan hanya bisa ditandai selesai setelah disetujui.');
+        }
+
+        User::find($bimbingan->mahasiswa_id)?->notify(new ActivityNotification(
+            'Bimbingan selesai',
+            "Bimbingan {$bimbingan->kode} telah ditandai selesai. Kamu sekarang bisa mengajukan bimbingan lagi ke dosen yang sama atau dosen lain.",
+            'bimbingan_status',
+            (int) $bimbingan->getKey(),
+            route('bimbingan.show', $bimbingan),
+        ));
+
+        return redirect()->route('dosen.bimbingan.show', $bimbingan)
+            ->with('success', 'Bimbingan ditandai selesai. Mahasiswa kini dapat mengajukan bimbingan lagi.');
     }
 
     private function punyaPengajuanAktif(int $mahasiswaId): bool
