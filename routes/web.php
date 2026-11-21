@@ -3,6 +3,8 @@
 use App\Http\Controllers\AdminHima\LombaController;
 use App\Http\Controllers\AdminHima\VerifikasiPrestasiController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Dosen\DashboardController;
+use App\Http\Controllers\Dosen\RiwayatController;
 use App\Http\Controllers\Dosen\ProfilKeahlianController;
 use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
 use App\Http\Controllers\Mahasiswa\PrestasiController as MahasiswaPrestasiController;
@@ -60,13 +62,21 @@ Route::middleware('auth')->group(function () {
         ->name('mahasiswa.prestasi.berkas');
 });
 
+
 Route::prefix('dosen')->name('dosen.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+
     Route::get('/profil-keahlian', [ProfilKeahlianController::class, 'index'])
         ->name('profil-keahlian');
 
     Route::post('/profil-keahlian', [ProfilKeahlianController::class, 'update'])
         ->name('profil-keahlian.update');
+
+    Route::get('/riwayat', [RiwayatController::class, 'index'])
+        ->name('riwayat');
 });
+
 
 Route::prefix('mahasiswa')
     ->name('mahasiswa.')
@@ -77,8 +87,8 @@ Route::prefix('mahasiswa')
     });
 
 require __DIR__.'/bimbingan.php';
-
 require __DIR__.'/dasbor.php';
+require __DIR__.'/dosen-dashboard.php';
 
 Route::prefix('notifikasi')->name('mahasiswa.notifikasi.')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('index');
