@@ -12,12 +12,8 @@ class LombaController extends Controller
     private const PER_HALAMAN = 6;
 
     /**
-     * Lomba yang disimpan disimpan di session (belum ada login).
-     * Saat login sudah ada, ganti ke relasi User::lombaTersimpan()
-     * (tabel lomba_bookmarks sudah tersedia).
+     * Menampilkan katalog lomba.
      */
-    private const SESSION_TERSIMPAN = 'lomba_tersimpan';
-
     public function index(Request $request)
     {
         $filter = $request->validate([
@@ -47,34 +43,56 @@ class LombaController extends Controller
         ]);
     }
 
+    /**
+     * Menampilkan detail lomba.
+     */
     public function show(Request $request, Lomba $lomba)
     {
         abort_unless($lomba->status_publikasi === Lomba::STATUS_TAYANG, 404);
 
         return view('mahasiswa.lomba.show', [
-            'lomba'     => $lomba,
-            'tersimpan' => in_array((int) $lomba->getKey(), $this->idTersimpan($request), true),
+            'lomba' => $lomba,
+            'tersimpan' => $request->user()
+                ->lombaTersimpan()
+                ->where('lomba.lomba_id', $lomba->getKey())
+                ->exists(),
         ]);
     }
 
+    /**
+     * Menyimpan atau menghapus bookmark lomba.
+     */
     public function simpan(Request $request, Lomba $lomba)
     {
         abort_unless($lomba->status_publikasi === Lomba::STATUS_TAYANG, 404);
 
-        $id = $this->idTersimpan($request);
+        $bookmark = $request->user()
+            ->lombaTersimpan()
+            ->where('lomba.lomba_id', $lomba->getKey())
+            ->exists();
 
-        $id = in_array((int) $lomba->getKey(), $id, true)
-            ? array_values(array_diff($id, [(int) $lomba->getKey()]))
-            : [...$id, (int) $lomba->getKey()];
+        if ($bookmark) {
+            $request->user()->lombaTersimpan()->detach($lomba->getKey());
 
-        $request->session()->put(self::SESSION_TERSIMPAN, $id);
+            return back()->with('success', 'Lomba dihapus dari Lomba Saya.');
+        }
 
-        return back();
+        $request->user()->lombaTersimpan()->attach($lomba->getKey());
+
+        return back()->with('success', 'Lomba berhasil disimpan ke Lomba Saya.');
     }
 
-    /** @return int[] */
+    /**
+     * Mengambil ID lomba yang sudah disimpan mahasiswa.
+     *
+     * @return int[]
+     */
     private function idTersimpan(Request $request): array
     {
-        return array_map('intval', $request->session()->get(self::SESSION_TERSIMPAN, []));
+        return $request->user()
+            ->lombaTersimpan()
+            ->pluck('lomba.lomba_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 }

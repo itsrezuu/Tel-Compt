@@ -191,13 +191,13 @@
         [
             'label' => 'Katalog Lomba',
             'href' => route('mahasiswa.lomba.index'),
-            'match' => 'mahasiswa/lomba*',
+            'match' => 'mahasiswa/lomba',
             'icon' => '<path d="M8 21h8M12 17v4M7 4h10l-1 8-4 3-4-3-1-8Z"/><path d="M7 6H4v3c0 2 1 3 4 3M17 6h3v3c0 2-1 3-4 3"/>',
         ],
         [
             'label' => 'Lomba Saya',
-            'href' => url('/lomba-saya'),
-            'match' => 'lomba-saya*',
+            'href' => route('mahasiswa.lomba-saya.index'),
+            'match' => 'mahasiswa/lomba-saya',
             'icon' => '<path d="M6 3h12a2 2 0 0 1 2 2v16l-8-4-8 4V5a2 2 0 0 1 2-2Z"/>',
         ],
         [
@@ -225,6 +225,12 @@
             'icon' => '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
         ],
         [
+            'label' => 'Riwayat Aktivitas',
+            'href' => route('mahasiswa.riwayat.index'),
+            'match' => 'mahasiswa/riwayat*',
+            'icon' => '<path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
+        ],
+        [
             'label' => 'Pengetahuan & Prestasi',
             'href' => url('/pengetahuan-prestasi'),
             'match' => 'pengetahuan-prestasi*',
@@ -238,8 +244,8 @@
         ],
         [
             'label' => 'Profil',
-            'href' => url('/profil'),
-            'match' => 'profil*',
+            'href' => route('mahasiswa.profil.index'),
+            'match' => 'mahasiswa/profil*',
             'icon' => '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
         ],
     ];

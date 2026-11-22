@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,6 +25,11 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    public function programStudi(): BelongsTo
+    {
+        return $this->belongsTo(ProgramStudi::class, 'program_studi_id');
+    }
 
     public function keahlian(): BelongsToMany
     {
@@ -45,13 +51,28 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Lomba yang disimpan (bookmark) oleh mahasiswa.
-     */
     public function lombaTersimpan(): BelongsToMany
     {
-        return $this->belongsToMany(Lomba::class, 'lomba_bookmarks', 'user_id', 'lomba_id')
-            ->withTimestamps();
+        return $this->belongsToMany(
+            Lomba::class,
+            'lomba_bookmarks',
+            'user_id',
+            'lomba_id',
+            'id',
+            'lomba_id'
+        )->withTimestamps();
+    }
+
+    public function minatBidang(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            BidangKeahlian::class,
+            'minat_mahasiswa',
+            'user_id',
+            'bidang_keahlian_id',
+            'id',
+            'bidang_keahlian_id'
+        )->withTimestamps();
     }
 
     public function prestasiDiajukan(): HasMany

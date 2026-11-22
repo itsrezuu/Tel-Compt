@@ -26,4 +26,16 @@ class BidangKeahlian extends Model
             'id'
         )->withTimestamps();
     }
+
+    public function mahasiswa(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'minat_mahasiswa',
+            'bidang_keahlian_id',
+            'user_id',
+            'bidang_keahlian_id',
+            'id'
+        )->withTimestamps();
+    }
 }

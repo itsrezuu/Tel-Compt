@@ -8,6 +8,8 @@ use App\Http\Controllers\Dosen\RiwayatController;
 use App\Http\Controllers\Dosen\ProfilKeahlianController;
 use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
 use App\Http\Controllers\Mahasiswa\PrestasiController as MahasiswaPrestasiController;
+use App\Http\Controllers\Mahasiswa\LombaSayaController;
+use App\Http\Controllers\Mahasiswa\RiwayatAktivitasController;
 use App\Http\Controllers\NotificationController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -80,10 +82,32 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
 
 Route::prefix('mahasiswa')
     ->name('mahasiswa.')
+    ->middleware('auth')
     ->group(function () {
-        Route::get('/lomba', [MahasiswaLombaController::class, 'index'])->name('lomba.index');
-        Route::get('/lomba/{lomba}', [MahasiswaLombaController::class, 'show'])->name('lomba.show');
-        Route::post('/lomba/{lomba}/simpan', [MahasiswaLombaController::class, 'simpan'])->name('lomba.simpan');
+        // Katalog lomba
+        Route::get('/lomba', [MahasiswaLombaController::class, 'index'])
+            ->name('lomba.index');
+
+        Route::get('/lomba/{lomba}', [MahasiswaLombaController::class, 'show'])
+            ->name('lomba.show');
+
+        Route::post('/lomba/{lomba}/simpan', [MahasiswaLombaController::class, 'simpan'])
+            ->name('lomba.simpan');
+
+        // Lomba Saya (bookmark mahasiswa)
+        Route::get('/lomba-saya', [LombaSayaController::class, 'index'])
+            ->name('lomba-saya.index');
+
+        // Profil dan minat mahasiswa
+        Route::get('/profil', [\App\Http\Controllers\Mahasiswa\ProfilController::class, 'index'])
+            ->name('profil.index');
+
+        Route::put('/profil', [\App\Http\Controllers\Mahasiswa\ProfilController::class, 'update'])
+            ->name('profil.update');
+
+        // Riwayat aktivitas mahasiswa
+        Route::get('/riwayat', [RiwayatAktivitasController::class, 'index'])
+            ->name('riwayat.index');
     });
 
 require __DIR__.'/bimbingan.php';
@@ -121,7 +145,7 @@ if (app()->environment('local')) {
         Auth::login($user);
 
         return redirect(match ($role) {
-            'mahasiswa' => route('bimbingan.index'),
+            'mahasiswa' => route('mahasiswa.profil.index'),
             'dosen' => route('dosen.bimbingan.index'),
             'admin' => route('admin-hima.notifikasi.index'),
         });
