@@ -79,7 +79,7 @@ test('lecturer history shows only completed requests assigned to the signed in l
     );
     DB::table('bimbingan')
         ->where('bimbingan_id', $completed->getKey())
-        ->update(['updated_at' => Carbon::parse('2026-10-11 09:00:00')]);
+        ->update(['responded_at' => Carbon::parse('2026-10-11 09:00:00')]);
     dosenRiwayatTestBimbingan(
         $student,
         $lecturer,

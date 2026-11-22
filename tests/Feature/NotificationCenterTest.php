@@ -2,9 +2,11 @@
 
 use App\Models\Bimbingan;
 use App\Models\Konsultasi;
+use App\Models\Lomba;
 use App\Models\User;
 use App\Models\UsulanLomba;
 use App\Notifications\ActivityNotification;
+use Database\Seeders\LombaSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
@@ -173,15 +175,17 @@ test('new bimbingan and lecturer decisions notify the assigned lecturer and stud
     $student = notificationTestUser('mahasiswa');
     $lecturer = notificationTestUser('dosen');
     $otherLecturer = notificationTestUser('dosen');
+    $this->seed(LombaSeeder::class);
+    $lomba = Lomba::query()->where('status_publikasi', 'dipublikasikan')->firstOrFail();
 
     $this->actingAs($student)->post('/bimbingan', [
-        'lomba_id' => null,
+        'lomba_id' => $lomba->getKey(),
         'dosen_id' => $lecturer->id,
         'topik_judul' => 'Pendampingan Kompetisi',
         'ringkasan_kebutuhan' => 'Membutuhkan arahan.',
         'nama_tim' => 'Tim Mahasiswa',
         'ketua_tim' => $student->name,
-        'anggota_tim' => 'Anggota A',
+        'anggota_tim_ids' => [$student->getKey()],
         'rencana_kegiatan' => 'Menyusun proposal.',
     ])->assertRedirect(route('bimbingan.index'));
 
@@ -245,5 +249,5 @@ test('consultation requests and responses notify the assigned lecturer and stude
     ])->assertRedirect();
 
     expect(notificationTestFind($student, 'konsultasi_status', (int) $konsultasi->getKey())?->data['title'])
-        ->toBe('Tanggapan konsultasi');
+        ->toBe('Log bimbingan disetujui');
 });

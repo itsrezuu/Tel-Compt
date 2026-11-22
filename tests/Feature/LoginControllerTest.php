@@ -1,11 +1,40 @@
 <?php
 
 use App\Models\Bimbingan;
+use App\Models\Lomba;
 use App\Models\User;
+use Database\Seeders\LombaSeeder;
 use Database\Seeders\UserDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+it('seeds twenty students and lecturers without duplicating email addresses or adding admins', function (): void {
+    $legacyDimas = User::factory()->create([
+        'email' => 'dimas.arunika@telkomuniversity.ac.id',
+        'role' => 'dosen',
+        'nim_nip' => '20990001',
+    ]);
+    $legacyLaras = User::factory()->create([
+        'email' => 'laras.senandika@telkomuniversity.ac.id',
+        'role' => 'dosen',
+        'nim_nip' => '20990002',
+    ]);
+    $this->seed(UserDemoSeeder::class);
+    $this->seed(UserDemoSeeder::class);
+
+    expect($legacyDimas->fresh()->email)->toBe('dimasarunika@telkomuniversity.ac.id');
+    expect($legacyLaras->fresh()->email)->toBe('larassenandika@telkomuniversity.ac.id');
+    $this->assertDatabaseCount('users', 41);
+    expect(User::query()->where('role', 'mahasiswa')->count())->toBe(20);
+    expect(User::query()->where('role', 'dosen')->count())->toBe(20);
+    expect(User::query()->where('role', 'admin')->count())->toBe(1);
+    expect(User::query()->distinct()->count('email'))->toBe(41);
+
+    foreach (User::query()->where('role', 'dosen')->pluck('email') as $email) {
+        expect(explode('@', $email, 2)[0])->not->toContain('.');
+    }
+});
 
 it('signs in demo accounts and redirects each role to its own area', function (string $email, string $role, string $path) {
     $this->seed(UserDemoSeeder::class);
@@ -27,7 +56,7 @@ it('signs in demo accounts and redirects each role to its own area', function (s
 })->with([
     'Mahasiswa' => ['nadia@student.telkomuniversity.ac.id', 'mahasiswa', '/bimbingan'],
     'Admin HIMA' => ['adminhima@student.telkomuniversity.ac.id', 'admin', '/admin-hima/notifikasi'],
-    'Dosen' => ['dimas.arunika@telkomuniversity.ac.id', 'dosen', '/dosen/permintaan-bimbingan'],
+    'Dosen' => ['dimasarunika@telkomuniversity.ac.id', 'dosen', '/dosen/permintaan-bimbingan'],
 ]);
 
 it('invalidates the session and rotates the CSRF token when each role logs out', function (string $email) {
@@ -46,7 +75,7 @@ it('invalidates the session and rotates the CSRF token when each role logs out',
 })->with([
     'Mahasiswa' => ['nadia@student.telkomuniversity.ac.id'],
     'Admin HIMA' => ['adminhima@student.telkomuniversity.ac.id'],
-    'Dosen' => ['dimas.arunika@telkomuniversity.ac.id'],
+    'Dosen' => ['dimasarunika@telkomuniversity.ac.id'],
 ]);
 
 it('rejects login attempts from email domains outside the campus accounts', function () {
@@ -61,7 +90,9 @@ it('rejects login attempts from email domains outside the campus accounts', func
 it('connects student requests, lecturer decisions, notifications, and the lecturer profile', function () {
     $this->seed(UserDemoSeeder::class);
     $student = User::where('email', 'nadia@student.telkomuniversity.ac.id')->firstOrFail();
-    $lecturer = User::where('email', 'dimas.arunika@telkomuniversity.ac.id')->firstOrFail();
+    $lecturer = User::where('email', 'dimasarunika@telkomuniversity.ac.id')->firstOrFail();
+    $this->seed(LombaSeeder::class);
+    $lomba = Lomba::query()->where('status_publikasi', 'dipublikasikan')->firstOrFail();
 
     $this->postJson('/login', [
         'email' => $student->email,
@@ -69,13 +100,13 @@ it('connects student requests, lecturer decisions, notifications, and the lectur
     ])->assertOk();
 
     $this->post('/bimbingan', [
-        'lomba_id' => null,
+        'lomba_id' => $lomba->getKey(),
         'dosen_id' => $lecturer->id,
         'topik_judul' => 'Pendampingan Kompetisi Demo',
         'ringkasan_kebutuhan' => 'Membutuhkan arahan penyusunan proposal.',
         'nama_tim' => 'Tim Demo Tel-Compt',
         'ketua_tim' => $student->name,
-        'anggota_tim' => 'Anggota Demo',
+        'anggota_tim_ids' => [$student->getKey()],
         'rencana_kegiatan' => 'Menyusun proposal dan jadwal latihan.',
     ])->assertRedirect(route('bimbingan.index'));
 

@@ -2,15 +2,15 @@
 @use('App\Models\Bimbingan')
 @use('Illuminate\Support\Str')
 
-@section('title', 'Permintaan Konsultasi')
-@section('page_title', 'Permintaan Konsultasi')
+@section('title', 'Log Bimbingan')
+@section('page_title', 'Log Bimbingan')
 
 @push('styles')
     @include('bimbingan._styles')
 @endpush
 
 @php
-    $tabs = ['menunggu' => 'Menunggu', 'ditanggapi' => 'Ditanggapi', 'ditolak' => 'Ditolak'];
+    $tabs = ['menunggu' => 'Menunggu', 'ditanggapi' => 'Disetujui', 'ditolak' => 'Perlu perbaikan'];
 @endphp
 
 @section('content')
@@ -19,8 +19,8 @@
 
     <div class="bm-head">
         <div>
-            <h2>Permintaan konsultasi</h2>
-            <p>Pertanyaan dari mahasiswa bimbingan Anda. Mahasiswa baru bisa bertanya lagi setelah pertanyaan sebelumnya dijawab.</p>
+            <h2>Log bimbingan</h2>
+            <p>Tinjau isi log mahasiswa, setujui, atau kembalikan untuk diperbaiki.</p>
         </div>
     </div>
 
@@ -35,10 +35,10 @@
 
     <form method="GET" action="{{ route('dosen.konsultasi.index') }}">
         <input type="hidden" name="status" value="{{ $status }}">
-        <label class="bm-search-label" for="q">Cari konsultasi</label>
+        <label class="bm-search-label" for="q">Cari log</label>
         <div class="bm-search">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input id="q" name="q" value="{{ $q }}" placeholder="Mahasiswa, tim, topik atau isi pertanyaan">
+            <input id="q" name="q" value="{{ $q }}" placeholder="Mahasiswa, tim, topik atau isi log">
         </div>
     </form>
 
@@ -46,7 +46,7 @@
         <table class="bm-table">
             <thead>
                 <tr>
-                    <th>Konsultasi</th>
+                    <th>Log bimbingan</th>
                     <th>Mahasiswa / tim</th>
                     <th>Diterima</th>
                     <th>Status</th>
@@ -65,12 +65,12 @@
                         <td>@include('bimbingan._status', ['status' => $item->status])</td>
                         <td>
                             <a class="bm-link" href="{{ route('dosen.konsultasi.show', $item) }}">
-                                {{ $item->status === 'menunggu' ? 'Buka & tanggapi' : 'Lihat tanggapan' }}
+                                {{ $item->status === 'menunggu' ? 'Tinjau log' : 'Lihat keputusan' }}
                             </a>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="empty">Tidak ada konsultasi pada tab ini.</td></tr>
+                    <tr><td colspan="5" class="empty">Tidak ada log pada tab ini.</td></tr>
                 @endforelse
             </tbody>
         </table>

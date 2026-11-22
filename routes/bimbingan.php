@@ -12,10 +12,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/bimbingan', [BimbinganController::class, 'index'])->name('bimbingan.index');
 Route::get('/bimbingan/buat', [BimbinganController::class, 'create'])->name('bimbingan.create');
 Route::post('/bimbingan', [BimbinganController::class, 'store'])->name('bimbingan.store');
+Route::get('/bimbingan/cari-mahasiswa', [BimbinganController::class, 'cariMahasiswa'])->name('bimbingan.mahasiswa-search');
 Route::get('/bimbingan/{bimbingan}', [BimbinganController::class, 'show'])->whereNumber('bimbingan')->name('bimbingan.show');
+Route::patch('/bimbingan/{bimbingan}/ajukan-ulang', [BimbinganController::class, 'ajukanUlang'])->whereNumber('bimbingan')->name('bimbingan.ajukan-ulang');
 
 // Mahasiswa: konsultasi ke pembimbing (hanya bimbingan yang disetujui)
 Route::post('/bimbingan/{bimbingan}/konsultasi', [KonsultasiController::class, 'store'])->whereNumber('bimbingan')->name('konsultasi.store');
+Route::patch('/bimbingan/{bimbingan}/konsultasi/{konsultasi}', [KonsultasiController::class, 'revise'])
+    ->whereNumber('bimbingan')->whereNumber('konsultasi')->name('konsultasi.revise');
 
 // Dosen: permintaan bimbingan (URL sama dengan menu di layouts/dosen.blade.php)
 Route::get('/dosen/permintaan-bimbingan', [BimbinganController::class, 'dosenIndex'])->name('dosen.bimbingan.index');
@@ -29,3 +33,4 @@ Route::get('/dosen/riwayat', [RiwayatController::class, 'index'])->name('dosen.r
 Route::get('/dosen/permintaan-konsultasi', [KonsultasiController::class, 'dosenIndex'])->name('dosen.konsultasi.index');
 Route::get('/dosen/permintaan-konsultasi/{konsultasi}', [KonsultasiController::class, 'dosenShow'])->whereNumber('konsultasi')->name('dosen.konsultasi.show');
 Route::patch('/dosen/permintaan-konsultasi/{konsultasi}', [KonsultasiController::class, 'dosenRespond'])->whereNumber('konsultasi')->name('dosen.konsultasi.respond');
+Route::patch('/dosen/permintaan-konsultasi/{konsultasi}/isi', [KonsultasiController::class, 'dosenUpdate'])->whereNumber('konsultasi')->name('dosen.konsultasi.update');

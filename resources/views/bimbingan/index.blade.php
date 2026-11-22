@@ -15,12 +15,12 @@
     <div class="bm-head">
         <div>
             <h2>Bimbingan saya</h2>
-            <p>Pengajuan bimbingan formal ke dosen dan keputusannya.</p>
+            <p>Satu pengajuan untuk setiap lomba. Pengajuan untuk lomba lain dapat berjalan bersamaan.</p>
         </div>
-        @if ($aktif)
-            <span class="bm-btn bm-btn-disabled">Ajukan bimbingan</span>
-        @else
+        @if ($adaLombaTersedia)
             <a href="{{ route('bimbingan.create') }}" class="bm-btn bm-btn-primary">Ajukan bimbingan</a>
+        @else
+            <span class="bm-btn bm-btn-disabled">Tidak ada lomba baru</span>
         @endif
     </div>
 
@@ -34,22 +34,16 @@
         </div>
     @endif
 
-    @if ($aktif)
-        <div class="bm-banner warn">
-            <div>
-                <p style="margin:0;color:inherit">
-                    Kamu masih punya pengajuan Menunggu atau bimbingan Disetujui yang belum ditandai selesai, jadi belum bisa mengajukan lagi.
-                    Kamu bisa mengajukan lagi setelah pengajuan ditolak atau dosen menandai bimbingan selesai.
-                </p>
-            </div>
-        </div>
-    @endif
-
     @forelse ($items as $item)
         <article class="bm-card bm-item">
             <div class="bm-item-top">
                 <strong>{{ $item->kode }} · {{ $item->topik_judul }}</strong>
-                @include('bimbingan._status', ['status' => $item->status])
+                <div class="bm-actions">
+                    @if ($item->archived_at)
+                        <span class="bm-badge arsip">Arsip riwayat</span>
+                    @endif
+                    @include('bimbingan._status', ['status' => $item->status])
+                </div>
             </div>
             @if ($item->lomba_judul)
                 <p class="bm-text" style="margin:0">{{ $item->lomba_judul }}</p>
@@ -57,16 +51,16 @@
             <p class="bm-text" style="margin:0">{{ $item->ringkasan_kebutuhan }}</p>
             <p class="bm-meta" style="margin:0">Tim {{ $item->nama_tim }} · Dosen tujuan: {{ $item->dosen->name }}</p>
 
-            @if ($item->status === 'menunggu')
+            @if ($item->status === Bimbingan::MENUNGGU)
                 <p class="bm-meta" style="margin:0">
-                    Dikirim {{ Bimbingan::formatWaktu($item->created_at) }} · Persetujuan dosen belum diterima.
+                    Diajukan {{ Bimbingan::formatWaktu($item->batas_respons_at?->copy()->subHours(Bimbingan::BATAS_RESPONS_JAM)) }}.
                     Batas respons: {{ Bimbingan::formatWaktu($item->batas_respons_at, true) }}.
                 </p>
             @elseif ($item->catatan_dosen)
-                <div class="bm-box {{ $item->status === 'ditolak' ? 'bad' : 'ok' }}">
+                <div class="bm-box {{ $item->status === Bimbingan::DITOLAK ? 'bad' : 'ok' }}">
                     <strong>
                         @if ($item->ditolak_otomatis) Ditolak otomatis
-                        @elseif ($item->status === 'ditolak') Alasan penolakan
+                        @elseif ($item->status === Bimbingan::DITOLAK) Alasan penolakan
                         @else Arahan dosen @endif
                     </strong>
                     {{ $item->catatan_dosen }}
@@ -76,14 +70,18 @@
                 </div>
             @endif
 
+            @if ($item->archived_at)
+                <p class="bm-meta">Pengajuan lama ini disimpan sebagai riwayat dan tidak dapat diajukan ulang.</p>
+            @endif
+
             <div>
                 <a href="{{ route('bimbingan.show', $item) }}" class="bm-link">
-                    {{ $item->status === 'disetujui' ? 'Buka detail & konsultasi →' : 'Lihat detail →' }}
+                    {{ $item->status === Bimbingan::DISETUJUI ? 'Buka detail & log →' : 'Lihat detail →' }}
                 </a>
             </div>
         </article>
     @empty
-        <div class="bm-empty">Belum ada pengajuan bimbingan. Klik "Ajukan bimbingan" untuk mulai.</div>
+        <div class="bm-empty">Belum ada pengajuan bimbingan. Pilih lomba untuk mulai.</div>
     @endforelse
 </div>
 @endsection

@@ -7,9 +7,9 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class Bimbingan extends Model
 {
@@ -44,6 +44,7 @@ class Bimbingan extends Model
             'ditolak_otomatis' => 'boolean',
             'batas_respons_at' => 'datetime',
             'responded_at' => 'datetime',
+            'archived_at' => 'datetime',
         ];
     }
 
@@ -55,6 +56,19 @@ class Bimbingan extends Model
     public function dosen(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dosen_id');
+    }
+
+    /**
+     * Mahasiswa yang dipilih sebagai anggota tim.
+     */
+    public function anggotaTim(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'bimbingan_anggota_tim', 'bimbingan_id', 'user_id');
+    }
+
+    public function lomba(): BelongsTo
+    {
+        return $this->belongsTo(Lomba::class, 'lomba_id', 'lomba_id');
     }
 
     public function konsultasi(): HasMany
@@ -73,7 +87,8 @@ class Bimbingan extends Model
     /** Pengajuan yang masih "mengunci" mahasiswa: menunggu atau disetujui. */
     public function scopeAktif(Builder $query): Builder
     {
-        return $query->whereIn('status', [self::MENUNGGU, self::DISETUJUI]);
+        return $query->whereNull('archived_at')
+            ->whereIn('status', [self::MENUNGGU, self::DISETUJUI]);
     }
 
     /** Contoh: B-012 */
@@ -82,17 +97,9 @@ class Bimbingan extends Model
         return 'B-'.str_pad((string) $this->getKey(), 3, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Judul lomba terkait. Tabel lomba (SCRUM-23) belum tentu ada di database ini,
-     * jadi dicek dulu dan dikembalikan null kalau belum ada.
-     */
     public function getLombaJudulAttribute(): ?string
     {
-        if (! $this->lomba_id || ! Schema::hasTable('lomba')) {
-            return null;
-        }
-
-        return DB::table('lomba')->where('lomba_id', $this->lomba_id)->value('judul_lomba');
+        return $this->lomba?->judul_lomba;
     }
 
     /**
@@ -118,6 +125,7 @@ class Bimbingan extends Model
     {
         $respondedAt = now();
         $expired = static::query()
+            ->whereNull('archived_at')
             ->where('status', self::MENUNGGU)
             ->where('batas_respons_at', '<=', $respondedAt)
             ->get(['bimbingan_id', 'mahasiswa_id']);
@@ -128,6 +136,7 @@ class Bimbingan extends Model
 
         $ids = $expired->modelKeys();
         $updated = static::whereKey($ids)
+            ->whereNull('archived_at')
             ->where('status', self::MENUNGGU)
             ->where('batas_respons_at', '<=', $respondedAt)
             ->update([

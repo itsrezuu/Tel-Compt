@@ -1,4 +1,4 @@
-{{-- Banner keputusan bimbingan. Variabel: $status, $auto (bool), $untuk ('dosen' | 'mahasiswa') --}}
+{{-- Banner keputusan pengajuan. Variabel: $status, $auto, $untuk, $arsip. --}}
 @if ($status === 'disetujui')
     <div class="bm-banner ok">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
@@ -7,7 +7,7 @@
             <p>
                 {{ $untuk === 'dosen'
                     ? 'Keputusan telah tercatat. Mahasiswa menerima notifikasi dan dapat melihat arahan pada riwayat.'
-                    : 'Keputusan dosen telah tercatat. Kamu sekarang bisa mengirim konsultasi ke pembimbing.' }}
+                    : 'Keputusan dosen telah tercatat. Kamu sekarang bisa mengirim log bimbingan kepada dosen.' }}
             </p>
         </div>
     </div>
@@ -18,8 +18,10 @@
             <strong>Bimbingan selesai</strong>
             <p>
                 {{ $untuk === 'dosen'
-                    ? 'Proses bimbingan ini telah ditandai selesai. Mahasiswa dapat mengajukan bimbingan baru.'
-                    : 'Dosen telah menandai proses bimbingan ini selesai. Kamu bisa mengajukan bimbingan lagi, termasuk ke dosen lain.' }}
+                    ? 'Proses bimbingan ini telah ditandai selesai.'
+                    : ($arsip
+                        ? 'Pengajuan lama ini tersimpan sebagai arsip riwayat.'
+                        : 'Proses bimbingan ini selesai. Kamu tetap dapat mengajukan lomba lain.') }}
             </p>
         </div>
     </div>
@@ -33,8 +35,10 @@
                     Dosen tidak merespons dalam 1 hari, jadi pengajuan ditolak oleh sistem.
                 @elseif ($untuk === 'dosen')
                     Keputusan telah tercatat. Mahasiswa menerima notifikasi dan dapat melihat arahan pada riwayat.
+                @elseif ($arsip)
+                    Pengajuan ini tersimpan sebagai arsip riwayat dan tidak dapat diajukan ulang.
                 @else
-                    Keputusan dosen telah tercatat. Kamu bisa mengajukan bimbingan lagi ke dosen yang sama atau yang lain.
+                    Kamu dapat mengajukan ulang pengajuan yang sama kepada dosen pilihanmu, atau mengajukan lomba lain.
                 @endif
             </p>
         </div>
