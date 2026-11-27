@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminHima\LombaController;
 use App\Http\Controllers\AdminHima\VerifikasiPrestasiController;
+use App\Http\Controllers\AdminHima\KontenController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Dosen\DashboardController;
 use App\Http\Controllers\Dosen\RiwayatController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Mahasiswa\LombaController as MahasiswaLombaController;
 use App\Http\Controllers\Mahasiswa\PrestasiController as MahasiswaPrestasiController;
 use App\Http\Controllers\Mahasiswa\LombaSayaController;
 use App\Http\Controllers\Mahasiswa\RiwayatAktivitasController;
+use App\Http\Controllers\Mahasiswa\PengetahuanPrestasiController;
 use App\Http\Controllers\NotificationController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +40,44 @@ Route::prefix('admin-hima')->name('admin.lomba.')->group(function () {
     Route::put('/lomba/{lomba}', [LombaController::class, 'update'])->name('update');
     Route::delete('/lomba/{lomba}', [LombaController::class, 'destroy'])->name('destroy');
 });
+
+Route::prefix('admin-hima/konten')
+    ->name('admin.konten.')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/', [KontenController::class, 'index'])->name('index');
+        Route::get('/create', [KontenController::class, 'create'])->name('create');
+        Route::post('/', [KontenController::class, 'store'])->name('store');
+        Route::get('/{article}/edit', [KontenController::class, 'edit'])
+            ->whereNumber('article')
+            ->name('edit');
+        Route::put('/{article}', [KontenController::class, 'update'])
+            ->whereNumber('article')
+            ->name('update');
+        Route::patch('/{article}/publikasi', [KontenController::class, 'toggleArticlePublication'])
+            ->whereNumber('article')
+            ->name('publikasi');
+        Route::patch('/galeri/{pengajuan}/publikasi', [KontenController::class, 'toggleAchievementPublication'])
+            ->whereNumber('pengajuan')
+            ->name('galeri.publikasi');
+    });
+
+Route::prefix('pengetahuan-prestasi')
+    ->name('mahasiswa.pengetahuan.')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/', [PengetahuanPrestasiController::class, 'index'])->name('index');
+        Route::get('/arsip/{article}', [PengetahuanPrestasiController::class, 'showArticle'])
+            ->whereNumber('article')
+            ->name('artikel');
+        Route::get('/prestasi/{pengajuan}', [PengetahuanPrestasiController::class, 'showAchievement'])
+            ->whereNumber('pengajuan')
+            ->name('prestasi');
+        Route::get('/prestasi/{pengajuan}/berkas/{jenis}', [PengetahuanPrestasiController::class, 'downloadAchievementFile'])
+            ->whereNumber('pengajuan')
+            ->whereIn('jenis', ['bukti', 'keluaran'])
+            ->name('berkas');
+    });
 
 require __DIR__.'/usulan.php';
 
